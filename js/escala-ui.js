@@ -1,30 +1,11 @@
-/* CORE Scale — aplicación guiada de escalas funcionales.
-   Flujo: elegir escala → pantalla de introducción (qué es y cómo aplicarla)
-   → una pregunta a la vez con barra de progreso → resultado automático.      */
+/* CORE Scale — aplicación guiada de escalas funcionales, con el estilo
+   Modernist del diseño: introducción con kicker, una pregunta a la vez con
+   barra de progreso, opciones planas y resultado con número grande.          */
 
+/* La pantalla de elección vive en la vista "Nueva evaluación" (app.js);
+   esta ruta queda por compatibilidad. */
 async function vistaElegirEscala(cont, pid, eid) {
-  const [paciente, episodio] = await Promise.all([
-    DB.obtener('pacientes', pid), DB.obtener('episodios', eid)
-  ]);
-  barra('Escalas funcionales', paciente.nombre, '#/episodio/' + pid + '/' + eid);
-
-  const { sugeridas, resto } = escalasParaEpisodio(episodio.tipo);
-  const fila = (e) =>
-    '<button class="fila-lista" data-escala="' + e.id + '">' +
-    '<div class="cuerpo"><div class="principal">' + e.nombre + '</div>' +
-    '<div class="secundario">' + e.descripcion + '</div>' +
-    '<div style="margin-top:6px"><span class="chip">' + e.tiempo + '</span>' +
-    '<span class="chip">' + (e.quien === 'paciente' ? 'La contesta el paciente' : 'La aplica el médico') + '</span></div>' +
-    '</div><span class="extremo">›</span></button>';
-
-  cont.innerHTML =
-    '<p class="seccion-titulo">Sugeridas para ' + (PLANTILLAS[episodio.tipo] ? PLANTILLAS[episodio.tipo].nombre.toLowerCase() : 'este caso') + '</p>' +
-    sugeridas.map(fila).join('') +
-    (resto.length ? '<p class="seccion-titulo">Otras escalas</p>' + resto.map(fila).join('') : '');
-
-  cont.querySelectorAll('[data-escala]').forEach(b =>
-    b.addEventListener('click', () =>
-      location.hash = '#/escala/' + pid + '/' + eid + '/' + b.dataset.escala));
+  irA('#/nueva/' + pid + '/' + eid);
 }
 
 /* Valor puntuable de la respuesta i (índice de opción o número elegido). */
@@ -35,30 +16,37 @@ function _valorRespuesta(preg, r) {
 }
 
 async function vistaAplicarEscala(cont, pid, eid, escalaId) {
+  activarNav('pacientes');
   const [paciente, episodio] = await Promise.all([
     DB.obtener('pacientes', pid), DB.obtener('episodios', eid)
   ]);
   const esc = escalaPorId(escalaId);
-  if (!esc) { location.hash = '#/escalas/' + pid + '/' + eid; return; }
-  barra(esc.corto, paciente.nombre, '#/escalas/' + pid + '/' + eid);
+  if (!esc || !paciente || !episodio) { irA('#/nueva/' + pid + '/' + eid); return; }
 
   const n = esc.preguntas.length;
   const indices = new Array(n).fill(undefined);   // índice de opción o número elegido
   let paso = -1;                                  // -1 = introducción
 
+  const envoltura = (interior) =>
+    '<div class="pagina" style="max-width:640px">' + interior + '</div>';
+
   function pintar() {
     if (paso === -1) {
-      cont.innerHTML =
-        '<div class="tarjeta"><h2 style="margin:4px 0 8px">' + esc.nombre + '</h2>' +
-        '<p style="color:var(--tinta-2);margin:0 0 10px">' + esc.descripcion + '</p>' +
-        '<span class="chip">' + n + (n === 1 ? ' pregunta' : ' preguntas') + '</span>' +
-        '<span class="chip">' + esc.tiempo + '</span>' +
-        '<span class="chip">' + (esc.quien === 'paciente' ? 'La contesta el paciente' : 'La aplica el médico') + '</span>' +
-        '</div>' +
-        '<div class="tarjeta"><b>Cómo aplicarla</b><ul style="margin:8px 0 0;padding-left:20px">' +
-        esc.instrucciones.map(x => '<li style="margin-bottom:6px">' + x + '</li>').join('') + '</ul></div>' +
+      cont.innerHTML = envoltura(
+        atrasHTML('#/nueva/' + pid + '/' + eid, paciente.nombre) +
+        '<div class="card-kicker" style="margin-top:14px">' +
+        (esc.quien === 'paciente' ? 'Escala reportada por el paciente' : 'Escala aplicada por el médico') + '</div>' +
+        '<h3 style="margin:4px 0 8px">' + esc.nombre + '</h3>' +
+        '<p class="text-muted" style="font-size:14px">' + esc.descripcion + '</p>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px">' +
+        '<span class="tag tag-neutral">' + n + (n === 1 ? ' pregunta' : ' preguntas') + '</span>' +
+        '<span class="tag tag-neutral">' + esc.tiempo + '</span></div>' +
+        '<div class="card" style="margin-top:12px"><div class="card-kicker">Cómo aplicarla</div>' +
+        '<ul style="margin:4px 0 0;padding-left:18px;font-size:13.5px;line-height:1.55">' +
+        esc.instrucciones.map(x => '<li>' + x + '</li>').join('') + '</ul></div>' +
         (esc.nota ? '<div class="aviso">' + esc.nota + '</div>' : '') +
-        '<button class="btn" id="btnEmpezar">Comenzar</button>';
+        '<button class="btn btn-primary btn-block btn-grande" id="btnEmpezar">Comenzar</button>');
+      instalarIr(cont);
       cont.querySelector('#btnEmpezar').addEventListener('click', () => { paso = 0; pintar(); });
       return;
     }
@@ -77,21 +65,22 @@ async function vistaAplicarEscala(cont, pid, eid, escalaId) {
         for (let v = p.min; v <= p.max; v += pasoNum) {
           botones += '<button type="button" class="op' +
             (indices[paso] === v ? ' activa' : '') + '" data-num="' + v +
-            '" style="min-width:52px;font-size:19px;font-weight:700">' + v + '</button>';
+            '" style="min-width:52px;font-family:var(--font-heading);font-weight:800;font-size:19px">' + v + '</button>';
         }
         cuerpoPregunta = '<div class="opciones">' + botones + '</div>' +
-          '<div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--tinta-2);margin-top:8px">' +
+          '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-neutral-600);margin-top:8px">' +
           '<span>' + (p.etMin || p.min) + '</span><span>' + (p.etMax || p.max) + '</span></div>';
       } else {
         const val = indices[paso] !== undefined ? indices[paso] : Math.round((p.min + p.max) / 2);
         cuerpoPregunta =
-          '<div class="resultado-grande" style="padding:8px"><div class="numero" id="valSlider" style="font-size:46px">' +
-          (indices[paso] !== undefined ? indices[paso] : '—') + '</div></div>' +
+          '<div style="text-align:center;font-family:var(--font-heading);font-weight:800;font-size:46px;color:var(--color-accent-700)" id="valSlider">' +
+          (indices[paso] !== undefined ? indices[paso] : '—') + '</div>' +
           '<input type="range" id="slider" min="' + p.min + '" max="' + p.max +
-          '" step="' + pasoNum + '" value="' + val + '" style="width:100%">' +
-          '<div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--tinta-2);margin-top:6px">' +
+          '" step="' + pasoNum + '" value="' + val + '">' +
+          '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-neutral-600);margin-top:6px">' +
           '<span>' + (p.etMin || p.min) + '</span><span>' + (p.etMax || p.max) + '</span></div>' +
-          '<button class="btn" id="btnSigNum"' + (indices[paso] === undefined ? ' disabled style="opacity:.5"' : '') + '>Continuar</button>';
+          '<button class="btn btn-primary btn-block btn-grande" id="btnSigNum"' +
+          (indices[paso] === undefined ? ' disabled' : '') + '>Continuar</button>';
       }
     } else {
       cuerpoPregunta = p.ops.map((o, i) =>
@@ -99,15 +88,17 @@ async function vistaAplicarEscala(cont, pid, eid, escalaId) {
         '" data-op="' + i + '">' + o.et + '</button>').join('');
     }
 
-    cont.innerHTML =
+    cont.innerHTML = envoltura(
+      '<div style="display:flex;align-items:center;gap:10px">' +
+      '<span class="tag tag-accent">' + esc.corto + '</span>' +
+      '<span class="text-muted" style="font-size:12px">Pregunta ' + (paso + 1) + ' de ' + n + '</span></div>' +
       '<div class="progreso"><div style="width:' + pct + '%"></div></div>' +
-      '<p class="pregunta-num">Pregunta ' + (paso + 1) + ' de ' + n + '</p>' +
       '<p class="pregunta-texto">' + p.texto + '</p>' +
       cuerpoPregunta +
       '<div style="display:flex;gap:10px;margin-top:16px">' +
-      (paso > 0 || true ? '<button class="btn secundario" style="margin:0" id="btnAnt">‹ Anterior</button>' : '') +
-      (esc.permitirOmitir ? '<button class="btn secundario" style="margin:0" id="btnOmitir">Omitir</button>' : '') +
-      '</div>';
+      '<button class="btn btn-secondary" id="btnAnt">← Anterior</button>' +
+      (esc.permitirOmitir ? '<button class="btn btn-ghost" id="btnOmitir">Omitir pregunta</button>' : '') +
+      '</div>');
 
     cont.querySelector('#btnAnt').addEventListener('click', () => {
       if (paso === 0) { paso = -1; } else { paso--; }
@@ -133,8 +124,7 @@ async function vistaAplicarEscala(cont, pid, eid, escalaId) {
       slider.addEventListener('input', () => {
         indices[paso] = parseFloat(slider.value);
         cont.querySelector('#valSlider').textContent = slider.value;
-        const btn = cont.querySelector('#btnSigNum');
-        btn.disabled = false; btn.style.opacity = '';
+        cont.querySelector('#btnSigNum').disabled = false;
       });
       cont.querySelector('#btnSigNum').addEventListener('click', () => {
         if (indices[paso] === undefined) return;
@@ -149,24 +139,25 @@ async function vistaAplicarEscala(cont, pid, eid, escalaId) {
     const res = esc.calcular(valores);
 
     if (res.incompleta) {
-      cont.innerHTML =
-        '<div class="tarjeta"><div class="vacio"><div class="icono">✋</div>' +
-        'No se puede calcular todavía.<br>' + res.texto + '</div></div>' +
-        '<button class="btn secundario" id="btnVolverP">‹ Revisar respuestas</button>';
+      cont.innerHTML = envoltura(
+        '<div class="vacio"><div class="icono">✋</div>No se puede calcular todavía.<br>' +
+        res.texto + '</div>' +
+        '<button class="btn btn-secondary btn-block" id="btnVolverP">← Revisar respuestas</button>');
       cont.querySelector('#btnVolverP').addEventListener('click', () => { paso = 0; pintar(); });
       return;
     }
 
-    cont.innerHTML =
-      '<div class="tarjeta resultado-grande">' +
-      '<div class="numero" style="color:var(--acento)">' + res.puntos + '</div>' +
-      '<div class="de">de ' + res.maximo + ' · ' + esc.corto + '</div>' +
-      (res.interpretacion ? '<div class="interpretacion">' + res.interpretacion + '</div>' : '') +
-      (res.detalle ? '<div class="de" style="margin-top:8px">' + res.detalle + '</div>' : '') +
-      '<div class="de" style="margin-top:8px">' + (res.texto || '') + '</div>' +
+    cont.innerHTML = envoltura(
+      '<div class="card" style="text-align:center;padding:26px 16px;gap:6px">' +
+      '<div class="card-kicker">' + esc.corto + ' · Resultado</div>' +
+      '<div class="resultado-num">' + res.puntos + '</div>' +
+      '<div class="text-muted" style="font-size:14px">de ' + res.maximo + '</div>' +
+      (res.interpretacion ? '<div style="font-family:var(--font-heading);font-weight:800;font-size:18px;margin-top:6px">' + res.interpretacion + '</div>' : '') +
+      (res.detalle ? '<div class="text-muted" style="font-size:12.5px;margin-top:4px">' + res.detalle + '</div>' : '') +
+      '<div class="text-muted" style="font-size:12.5px;margin-top:4px">' + (res.texto || '') + '</div>' +
       '</div>' +
-      '<button class="btn" id="btnGuardarEsc">Guardar resultado</button>' +
-      '<button class="btn secundario" id="btnRevisar">‹ Revisar respuestas</button>';
+      '<button class="btn btn-primary btn-block btn-grande" id="btnGuardarEsc">Guardar resultado</button>' +
+      '<button class="btn btn-secondary btn-block" id="btnRevisar">← Revisar respuestas</button>');
 
     cont.querySelector('#btnRevisar').addEventListener('click', () => { paso = 0; pintar(); });
     cont.querySelector('#btnGuardarEsc').addEventListener('click', async () => {
@@ -178,7 +169,7 @@ async function vistaAplicarEscala(cont, pid, eid, escalaId) {
         guardado: new Date().toISOString()
       };
       await DB.guardar('escalas', obj);
-      location.hash = '#/episodio/' + pid + '/' + eid;
+      irA(hashPerfil(pid, eid));
     });
   }
 
@@ -187,38 +178,42 @@ async function vistaAplicarEscala(cont, pid, eid, escalaId) {
 
 /* Resultado de escala ya guardado (consulta y borrado). */
 async function vistaResultadoEscala(cont, pid, eid, id) {
+  activarNav('pacientes');
   const [paciente, r] = await Promise.all([
     DB.obtener('pacientes', pid), DB.obtener('escalas', id)
   ]);
-  if (!r) { location.hash = '#/episodio/' + pid + '/' + eid; return; }
+  if (!r) { irA(hashPerfil(pid, eid)); return; }
   const esc = escalaPorId(r.escalaId);
-  barra(esc ? esc.corto : 'Escala', paciente.nombre + ' · ' + fmtFecha(r.fecha),
-    '#/episodio/' + pid + '/' + eid);
 
   let detalles = '';
   if (esc && r.indices) {
-    detalles = '<div class="tarjeta"><table class="tabla-resumen">' +
+    detalles = '<table class="table" style="margin-top:14px">' +
       esc.preguntas.map((p, i) => {
         const idx = r.indices[i];
         let respuesta = '—';
         if (idx !== null && idx !== undefined)
           respuesta = p.tipo === 'numerica' ? String(idx) : p.ops[idx].et;
-        return '<tr><td>' + (i + 1) + '. ' + p.texto + '</td><td>' + respuesta + '</td></tr>';
-      }).join('') + '</table></div>';
+        return '<tr><td style="width:30px" class="text-muted">' + (i + 1) + '</td>' +
+          '<td>' + p.texto + '</td><td style="font-weight:600;white-space:nowrap">' + respuesta + '</td></tr>';
+      }).join('') + '</table>';
   }
 
-  cont.innerHTML =
-    '<div class="tarjeta resultado-grande">' +
-    '<div class="numero" style="color:var(--acento)">' + r.puntos + '</div>' +
-    '<div class="de">de ' + r.maximo + ' · ' + (esc ? esc.nombre : r.escalaId) + '</div>' +
-    (r.interpretacion ? '<div class="interpretacion">' + r.interpretacion + '</div>' : '') +
-    (r.detalle ? '<div class="de" style="margin-top:8px">' + r.detalle + '</div>' : '') +
+  cont.innerHTML = '<div class="pagina" style="max-width:720px">' +
+    atrasHTML(hashPerfil(pid, eid), paciente.nombre) +
+    '<div class="card" style="text-align:center;padding:26px 16px;gap:6px;margin-top:14px">' +
+    '<div class="card-kicker">' + (esc ? esc.nombre : r.escalaId) + ' · ' + fmtFecha(r.fecha) + '</div>' +
+    '<div class="resultado-num">' + r.puntos + '</div>' +
+    '<div class="text-muted" style="font-size:14px">de ' + r.maximo + '</div>' +
+    (r.interpretacion ? '<div style="font-family:var(--font-heading);font-weight:800;font-size:18px;margin-top:6px">' + r.interpretacion + '</div>' : '') +
+    (r.detalle ? '<div class="text-muted" style="font-size:12.5px;margin-top:4px">' + r.detalle + '</div>' : '') +
     '</div>' + detalles +
-    '<button class="btn peligro" id="btnBorrarEsc">Eliminar resultado</button>';
+    '<button class="btn btn-peligro btn-block" id="btnBorrarEsc" style="margin-top:16px">Eliminar resultado</button>' +
+    '</div>';
 
+  instalarIr(cont);
   cont.querySelector('#btnBorrarEsc').addEventListener('click', async () => {
     if (!confirm('¿Eliminar este resultado de escala?')) return;
     await DB.borrar('escalas', id);
-    location.hash = '#/episodio/' + pid + '/' + eid;
+    irA(hashPerfil(pid, eid));
   });
 }

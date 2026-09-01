@@ -1,52 +1,78 @@
 /* CORE Scale — captura y consulta de evaluaciones (las 4 plantillas).
-   La captura es un acordeón: una tarjeta por sección de la hoja impresa, cada
-   una con su recuadro "Cómo se hace" y sus cálculos automáticos en vivo.     */
+   Asistente por secciones tomado del diseño Modernist: riel lateral en iPad,
+   fila de números en iPhone, recuadro "Técnica", contadores −/+, cálculo del
+   LSI en vivo y diálogo de confirmación al guardar.                          */
 
 function _pasoBoton(campo) {
   if (campo.unidad === '°') return 5;
   if (campo.unidad === 'rep') return 1;
+  if (campo.unidad === 'seg') return 0.1;
   return 0.5;
+}
+
+function _claseNum(a) {
+  if (a.tipo !== 'lsi') return '';
+  return { bueno: 'ok', medio: 'acento', malo: 'alerta' }[claseLSI(a)] || 'acento';
+}
+function _tagAuto(a) {
+  if (a.tipo !== 'lsi') return 'tag-neutral';
+  return { bueno: 'tag-ok', medio: 'tag-accent', malo: 'tag-accent' }[claseLSI(a)] || 'tag-neutral';
 }
 
 function _campoHTML(campo, valor) {
   const v = valor === undefined || valor === null ? '' : valor;
   if (campo.tipo === 'num') {
-    return '<div class="campo" data-campo="' + campo.id + '">' +
-      '<label>' + campo.et + (campo.crono ? ' <span style="font-weight:400;color:var(--tinta-3)">(puede usar el cronómetro)</span>' : '') + '</label>' +
-      '<div class="campo-num">' +
-      '<button type="button" class="mas-menos" data-dir="-1">−</button>' +
-      '<input type="text" inputmode="decimal" autocomplete="off" value="' + v + '" placeholder="—">' +
-      '<button type="button" class="mas-menos" data-dir="1">+</button>' +
-      '<span class="unidad">' + campo.unidad + '</span>' +
+    return '<div class="field" data-campo="' + campo.id + '" style="min-width:0">' +
+      '<label>' + campo.et + (campo.crono ? ' <span class="text-muted">(o use el cronómetro)</span>' : '') + '</label>' +
+      '<div class="stepper">' +
+      '<button type="button" class="paso" data-dir="-1">−</button>' +
+      '<input class="input" type="text" inputmode="decimal" autocomplete="off" value="' + v + '" placeholder="—">' +
+      '<div class="unidad">' + campo.unidad + '</div>' +
+      '<button type="button" class="paso" data-dir="1">+</button>' +
       '</div></div>';
   }
   if (campo.tipo === 'ops' || campo.tipo === 'sino') {
     const ops = campo.tipo === 'sino'
       ? [{ v: 'si', et: 'Sí' }, { v: 'no', et: 'No' }] : campo.ops;
-    return '<div class="campo" data-campo="' + campo.id + '"><label>' + campo.et + '</label>' +
+    return '<div class="field ancho-total" data-campo="' + campo.id + '"><label>' + campo.et + '</label>' +
       '<div class="opciones">' + ops.map(o =>
         '<button type="button" class="op' + (String(v) === String(o.v) ? ' activa' : '') +
         '" data-v="' + o.v + '">' + o.et + '</button>').join('') +
       '</div></div>';
   }
   if (campo.tipo === 'sel') {
-    return '<div class="campo" data-campo="' + campo.id + '"><label>' + campo.et + '</label>' +
-      '<select><option value="">—</option>' + campo.ops.map(o =>
+    return '<div class="field" data-campo="' + campo.id + '"><label>' + campo.et + '</label>' +
+      '<select class="input"><option value="">—</option>' + campo.ops.map(o =>
         '<option' + (v === o ? ' selected' : '') + '>' + o + '</option>').join('') +
       '</select></div>';
   }
   return '';
 }
 
-function _autosHTML(seccion, valores) {
+function _cintaHTML(seccion, valores) {
   const autos = calcularAutos(seccion, valores);
   if (!autos.length) return '';
-  return '<div class="autos">' + autos.map(a => {
-    const clase = claseLSI(a);
-    return '<div class="auto-fila"><span class="et">⚡ ' + a.et + '</span>' +
-      '<span class="valor ' + clase + '">' + formatoAuto(a) + '</span></div>' +
-      (a.nota && a.num !== null ? '<p class="auto-nota">' + a.nota + '</p>' : '');
-  }).join('') + '</div>';
+  let datos = '';
+  if (seccion.tipoSeccion === 'dinamometria') {
+    const contra = parseFloat(String(valores[seccion.id + '_contra'] || '').replace(',', '.'));
+    const mejor = autos.find(a => a.tipo === 'max');
+    if (mejor) datos += '<div class="dato"><div class="card-kicker">Mejor intento</div>' +
+      '<div class="num">' + formatoAuto(mejor) + '</div></div>';
+    datos += '<div class="dato"><div class="card-kicker">Contralateral</div>' +
+      '<div class="num">' + (isNaN(contra) ? '—' : contra + ' kg') + '</div></div>';
+    const lsi = autos.find(a => a.tipo === 'lsi');
+    if (lsi) datos += '<div class="dato"><div class="card-kicker">Índice de simetría (LSI)</div>' +
+      '<div class="num ' + (_claseNum(lsi) || 'acento') + '">' + formatoAuto(lsi) + '</div></div>' +
+      '<div class="nota">LSI = mejor intento ÷ contralateral × 100. ' + (lsi.nota || '') + '</div>';
+  } else {
+    for (const a of autos) {
+      datos += '<div class="dato"><div class="card-kicker">' + a.et + '</div>' +
+        '<div class="num ' + _claseNum(a) + '">' + formatoAuto(a) + '</div></div>';
+    }
+    const conNota = autos.find(a => a.nota && a.num !== null);
+    if (conNota) datos += '<div class="nota">' + conNota.nota + '</div>';
+  }
+  return '<div class="cinta">' + datos + '</div>';
 }
 
 function _seccionCompleta(seccion, valores) {
@@ -59,8 +85,8 @@ function _seccionCompleta(seccion, valores) {
 function _cronoHTML(tipo) {
   const et = tipo === 'cronometro30' ? '30.0' : '0.0';
   return '<div class="crono" data-tipo="' + tipo + '">' +
-    '<span class="tiempo">' + et + '<small style="font-size:16px;color:var(--tinta-2)"> seg</small></span>' +
-    '<button type="button" class="ir">▶ Iniciar</button></div>';
+    '<span class="tiempo">' + et + '<small style="font-size:15px;color:var(--color-neutral-600)"> seg</small></span>' +
+    '<button type="button" class="btn btn-secondary btn-grande ir">▶ Iniciar</button></div>';
 }
 
 function _instalarCrono(cont, seccion, alTerminar) {
@@ -73,106 +99,141 @@ function _instalarCrono(cont, seccion, alTerminar) {
   const pintar = () => {
     const trans = (Date.now() - t0) / 1000;
     const val = esCuenta ? Math.max(0, 30 - trans) : trans;
-    lbl.innerHTML = val.toFixed(1) + '<small style="font-size:16px;color:var(--tinta-2)"> seg</small>';
+    lbl.innerHTML = val.toFixed(1) + '<small style="font-size:15px;color:var(--color-neutral-600)"> seg</small>';
     if (esCuenta && val <= 0) {
       clearInterval(timer); timer = null;
-      lbl.innerHTML = '<span style="color:var(--malo)">¡Tiempo! Anote las repeticiones.</span>';
-      btn.textContent = '▶ Reiniciar'; btn.classList.remove('parar');
+      lbl.innerHTML = '<span style="color:var(--color-accent-700)">¡Tiempo! Anote las repeticiones.</span>';
+      btn.textContent = '▶ Reiniciar';
       if (navigator.vibrate) navigator.vibrate(400);
     }
   };
   btn.addEventListener('click', () => {
-    if (timer) {                       // detener (solo cronómetro ascendente)
+    if (timer) {
       clearInterval(timer); timer = null;
       const seg = Math.round((Date.now() - t0) / 100) / 10;
-      btn.textContent = '▶ Iniciar'; btn.classList.remove('parar');
+      btn.textContent = '▶ Iniciar';
       if (!esCuenta) alTerminar(seg);
       pintar();
-    } else {                           // iniciar
+    } else {
       t0 = Date.now();
       timer = setInterval(pintar, 100);
       btn.textContent = esCuenta ? '⏹ Cancelar' : '⏹ Detener y guardar';
-      btn.classList.add('parar');
     }
   });
 }
 
-/* ================= Captura / edición ================= */
+/* ================= Captura / edición (asistente) ================= */
 async function vistaFormEvaluacion(cont, pid, eid, plantillaId, evalId) {
+  activarNav('pacientes');
   const [paciente, episodio] = await Promise.all([
     DB.obtener('pacientes', pid), DB.obtener('episodios', eid)
   ]);
+  if (!paciente || !episodio) { irA('#/'); return; }
   const existente = evalId ? await DB.obtener('evaluaciones', evalId) : null;
   const plantilla = PLANTILLAS[plantillaId];
+  const secs = plantilla.secciones;
+
   const valores = existente ? { ...existente.valores } : {};
-  const evaluadorDefault = existente ? existente.evaluador : (await DB.conf('evaluador') || '');
-  const fecha = existente ? existente.fecha : hoyISO();
+  let fecha = existente ? existente.fecha : hoyISO();
+  let evaluador = existente ? (existente.evaluador || '') : (await DB.conf('evaluador') || '');
+  let notas = existente && existente.notas || '';
+  let si = 0;
 
-  barra(plantilla.nombre, paciente.nombre, '#/episodio/' + pid + '/' + eid);
-
-  let htmlSecs = '';
-  plantilla.secciones.forEach((s, i) => {
-    const est = _seccionCompleta(s, valores);
-    htmlSecs +=
-      '<div class="sec-eval' + (i === 0 ? ' abierta' : '') + '" data-sec="' + i + '">' +
-      '<button type="button" class="cabeza">' +
-      '<span class="num' + (est.conValor === est.total ? ' lleno' : '') + '">' +
-      (est.conValor === est.total ? '✓' : (i + 1)) + '</span>' +
-      '<h3>' + s.titulo + '</h3><span class="flecha">›</span></button>' +
-      '<div class="contenido">' +
-      '<details class="como"' + '><summary>Cómo se hace</summary><ul>' +
-      s.instrucciones.map(x => '<li>' + x + '</li>').join('') + '</ul></details>' +
-      (s.tipoSeccion === 'cronometro' || s.tipoSeccion === 'cronometro30' ? _cronoHTML(s.tipoSeccion) : '') +
-      '<div class="dos-columnas">' +
-      s.campos.map(c => _campoHTML(c, valores[c.id])).join('') +
-      '</div><div class="zona-autos">' + _autosHTML(s, valores) + '</div>' +
-      '</div></div>';
-  });
-
-  cont.innerHTML =
-    '<div class="tarjeta">' +
-    '<div class="dos-columnas">' +
-    '<div class="campo"><label>Fecha de la evaluación</label>' +
-    '<input type="date" id="evFecha" value="' + fecha + '"></div>' +
-    '<div class="campo"><label>Evaluador</label>' +
-    '<input type="text" id="evEvaluador" value="' + escaparHTML(evaluadorDefault) + '" placeholder="Nombre de quien evalúa"></div>' +
-    '</div>' +
-    '<div id="evSemanas" class="chip"></div>' +
-    ' <span class="chip">' + (episodio.lado ? 'Lado: ' + episodio.lado : '') + '</span>' +
-    '</div>' +
-    htmlSecs +
-    '<div class="campo tarjeta"><label>Notas de la consulta (opcional)</label>' +
-    '<textarea id="evNotas" rows="3" placeholder="Observaciones, incidencias, plan…">' +
-    escaparHTML(existente && existente.notas || '') + '</textarea></div>' +
-    '<button class="btn" id="btnGuardarEv">Guardar evaluación</button>';
-
-  const pintaSemanas = () => {
-    const f = cont.querySelector('#evFecha').value;
-    const s = semanasDesde(episodio.fechaCirugia, f);
-    cont.querySelector('#evSemanas').textContent =
-      s === null ? 'Sin fecha de cirugía' : 'Semana postoperatoria: ' + s;
+  const metaCap = () => {
+    const s = semanasDesde(episodio.fechaCirugia, fecha);
+    return (s !== null && s >= 0 ? 'Sem ' + s + ' PO · ' : '') + fmtFecha(fecha) +
+      (episodio.lado ? ' · ' + episodio.lado : '');
   };
-  pintaSemanas();
-  cont.querySelector('#evFecha').addEventListener('change', pintaSemanas);
 
-  /* acordeón + campos */
-  plantilla.secciones.forEach((s, i) => {
-    const sec = cont.querySelector('[data-sec="' + i + '"]');
+  function pintar() {
+    const sec = secs[si];
+    const est = i => _seccionCompleta(secs[i], valores);
 
-    sec.querySelector('.cabeza').addEventListener('click', () => {
-      sec.classList.toggle('abierta');
-    });
+    const rail = '<div class="rail solo-ancho">' +
+      atrasHTML(hashPerfil(pid, eid), paciente.nombre) +
+      '<div class="card-kicker" style="margin-top:16px">Evaluación postoperatoria</div>' +
+      '<h3 style="margin:4px 0 6px;font-size:20px">' + plantilla.nombre + '</h3>' +
+      '<div class="text-muted" style="font-size:12px">' + metaCap() + '</div>' +
+      '<div class="hr"></div>' +
+      secs.map((sx, i) => {
+        const e = est(i);
+        return '<div class="rail-item' + (i === si ? ' activa' : '') + '" data-sec="' + i + '">' +
+          '<div class="rail-num' + (e.conValor === e.total ? ' lista' : '') + '">' +
+          (e.conValor === e.total ? '✓' : (i + 1)) + '</div><div>' + sx.titulo + '</div></div>';
+      }).join('') + '</div>';
+
+    const pasosMovil = '<div style="display:flex;align-items:center;gap:8px" class="solo-angosto">' +
+      '<button class="btn btn-ghost" data-ir="' + hashPerfil(pid, eid) + '">←</button>' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="font-family:var(--font-heading);font-weight:800;font-size:15px;line-height:1.15">' + plantilla.nombre + '</div>' +
+      '<div class="text-muted" style="font-size:11px">' + escaparHTML(paciente.nombre) + ' · ' + metaCap() + '</div></div>' +
+      '<span class="tag tag-accent">' + (si + 1) + ' / ' + secs.length + '</span></div>' +
+      '<div class="pasos-movil">' +
+      secs.map((sx, i) => {
+        const e = est(i);
+        return '<button class="paso-num' + (i === si ? ' activa' : '') +
+          (e.conValor === e.total ? ' lista' : '') + '" data-sec="' + i + '">' +
+          (e.conValor === e.total ? '✓' : (i + 1)) + '</button>';
+      }).join('') + '</div>';
+
+    const visitaDatos = si === 0 ?
+      '<div class="visita-datos">' +
+      '<div class="field"><label>Fecha de la evaluación</label>' +
+      '<input class="input" type="date" id="evFecha" value="' + fecha + '"></div>' +
+      '<div class="field"><label>Evaluador</label>' +
+      '<input class="input" type="text" id="evEvaluador" value="' + escaparHTML(evaluador) + '" placeholder="Nombre de quien evalúa"></div>' +
+      '</div>' : '';
+
+    const notasHTML = si === secs.length - 1 ?
+      '<div class="field" style="margin-top:22px"><label>Notas de la consulta (opcional)</label>' +
+      '<textarea class="input" id="evNotas" rows="3" placeholder="Observaciones, incidencias, plan…">' +
+      escaparHTML(notas) + '</textarea></div>' : '';
+
+    cont.innerHTML = '<div class="captura">' + rail +
+      '<div class="captura-main">' + pasosMovil +
+      '<div class="solo-ancho"><span class="tag tag-accent">Sección ' + (si + 1) + ' de ' + secs.length + '</span></div>' +
+      '<h2 style="margin:12px 0 14px;font-size:26px">' + sec.titulo + '</h2>' +
+      visitaDatos +
+      '<div class="tecnica"><div class="card-kicker" style="margin-bottom:4px">Técnica</div>' +
+      '<div class="cuerpo"><ul>' + sec.instrucciones.map(x => '<li>' + x + '</li>').join('') + '</ul></div></div>' +
+      (sec.tipoSeccion === 'cronometro' || sec.tipoSeccion === 'cronometro30' ? _cronoHTML(sec.tipoSeccion) : '') +
+      '<div class="campos-grid">' + sec.campos.map(c => _campoHTML(c, valores[c.id])).join('') + '</div>' +
+      '<div class="zona-autos">' + _cintaHTML(sec, valores) + '</div>' +
+      notasHTML +
+      '<div class="pie-captura">' +
+      (si > 0 ? '<button class="btn btn-secondary btn-grande" id="btnAnt">← Anterior</button>' : '') +
+      '<div style="flex:1"></div>' +
+      (si < secs.length - 1 ?
+        '<button class="btn btn-primary btn-grande" id="btnSig">Siguiente sección →</button>' :
+        '<button class="btn btn-primary btn-grande" id="btnGuardarEv">Guardar evaluación</button>') +
+      '</div></div></div>';
+
+    /* estilos móviles: el encabezado del asistente vive dentro de captura-main */
+    instalarIr(cont);
+
+    cont.querySelectorAll('[data-sec]').forEach(el =>
+      el.addEventListener('click', () => { si = parseInt(el.dataset.sec); pintar(); }));
+
+    const fEl = cont.querySelector('#evFecha');
+    if (fEl) fEl.addEventListener('change', () => { fecha = fEl.value || hoyISO(); });
+    const eEl = cont.querySelector('#evEvaluador');
+    if (eEl) eEl.addEventListener('input', () => { evaluador = eEl.value; });
+    const nEl = cont.querySelector('#evNotas');
+    if (nEl) nEl.addEventListener('input', () => { notas = nEl.value; });
 
     const refrescar = () => {
-      sec.querySelector('.zona-autos').innerHTML = _autosHTML(s, valores);
-      const est = _seccionCompleta(s, valores);
-      const num = sec.querySelector('.num');
-      num.classList.toggle('lleno', est.conValor === est.total);
-      num.textContent = est.conValor === est.total ? '✓' : (i + 1);
+      cont.querySelector('.zona-autos').innerHTML = _cintaHTML(sec, valores);
+      const e = _seccionCompleta(sec, valores);
+      for (const el of cont.querySelectorAll('[data-sec="' + si + '"]')) {
+        const num = el.classList.contains('paso-num') ? el : el.querySelector('.rail-num');
+        if (!num) continue;
+        num.classList.toggle('lista', e.conValor === e.total);
+        num.textContent = e.conValor === e.total ? '✓' : (si + 1);
+      }
     };
 
-    for (const c of s.campos) {
-      const caja = sec.querySelector('[data-campo="' + c.id + '"]');
+    for (const c of sec.campos) {
+      const caja = cont.querySelector('[data-campo="' + c.id + '"]');
       if (!caja) continue;
       if (c.tipo === 'num') {
         const inp = caja.querySelector('input');
@@ -181,9 +242,9 @@ async function vistaFormEvaluacion(cont, pid, eid, plantillaId, evalId) {
           valores[c.id] = t === '' ? undefined : t;
           refrescar();
         });
-        caja.querySelectorAll('.mas-menos').forEach(b => {
-          b.addEventListener('click', () => {
-            const paso = _pasoBoton(c) * parseInt(b.dataset.dir);
+        caja.querySelectorAll('.paso').forEach(bt => {
+          bt.addEventListener('click', () => {
+            const paso = _pasoBoton(c) * parseInt(bt.dataset.dir);
             const actual = parseFloat(String(valores[c.id] || '').replace(',', '.'));
             let nuevo = (isNaN(actual) ? 0 : actual) + paso;
             nuevo = Math.round(nuevo * 10) / 10;
@@ -194,56 +255,83 @@ async function vistaFormEvaluacion(cont, pid, eid, plantillaId, evalId) {
           });
         });
       } else if (c.tipo === 'ops' || c.tipo === 'sino') {
-        caja.querySelectorAll('.op').forEach(b => {
-          b.addEventListener('click', () => {
-            const ya = b.classList.contains('activa');
+        caja.querySelectorAll('.op').forEach(bt => {
+          bt.addEventListener('click', () => {
+            const ya = bt.classList.contains('activa');
             caja.querySelectorAll('.op').forEach(x => x.classList.remove('activa'));
             if (ya) { delete valores[c.id]; }
-            else { b.classList.add('activa'); valores[c.id] = b.dataset.v; }
+            else { bt.classList.add('activa'); valores[c.id] = bt.dataset.v; }
             refrescar();
           });
         });
       } else if (c.tipo === 'sel') {
-        caja.querySelector('select').addEventListener('change', e => {
-          valores[c.id] = e.target.value || undefined;
+        caja.querySelector('select').addEventListener('change', ev => {
+          valores[c.id] = ev.target.value || undefined;
           refrescar();
         });
       }
     }
 
-    /* cronómetro: al detener llena el primer campo de tiempo vacío */
-    if (s.tipoSeccion === 'cronometro' || s.tipoSeccion === 'cronometro30') {
-      _instalarCrono(sec, s, seg => {
-        const destino = s.campos.find(c => c.crono && !valores[c.id]);
+    if (sec.tipoSeccion === 'cronometro' || sec.tipoSeccion === 'cronometro30') {
+      _instalarCrono(cont, sec, seg => {
+        const destino = sec.campos.find(c => c.crono && !valores[c.id]);
         if (!destino) return;
         valores[destino.id] = String(seg);
-        const inp = sec.querySelector('[data-campo="' + destino.id + '"] input');
+        const inp = cont.querySelector('[data-campo="' + destino.id + '"] input');
         if (inp) inp.value = seg;
         refrescar();
       });
     }
-  });
 
-  cont.querySelector('#btnGuardarEv').addEventListener('click', async () => {
-    const conAlgo = Object.keys(valores).some(k =>
-      valores[k] !== undefined && valores[k] !== '');
-    if (!conAlgo) { alert('La evaluación está vacía: capture al menos una medición.'); return; }
-    const evaluador = cont.querySelector('#evEvaluador').value.trim();
-    if (evaluador) DB.conf('evaluador', evaluador);
-    const obj = {
-      id: existente ? existente.id : DB.uuid(),
-      episodioId: eid,
-      plantillaId,
-      fecha: cont.querySelector('#evFecha').value || hoyISO(),
-      evaluador,
-      notas: cont.querySelector('#evNotas').value.trim(),
-      valores: Object.fromEntries(Object.entries(valores)
-        .filter(([, v]) => v !== undefined && v !== '')),
-      guardado: new Date().toISOString()
-    };
-    await DB.guardar('evaluaciones', obj);
-    location.hash = '#/evaluacion/' + pid + '/' + eid + '/' + obj.id;
-  });
+    const ant = cont.querySelector('#btnAnt');
+    if (ant) ant.addEventListener('click', () => { si = Math.max(si - 1, 0); pintar(); });
+    const sig = cont.querySelector('#btnSig');
+    if (sig) sig.addEventListener('click', () => { si = Math.min(si + 1, secs.length - 1); pintar(); });
+
+    const guardar = cont.querySelector('#btnGuardarEv');
+    if (guardar) guardar.addEventListener('click', async () => {
+      const conAlgo = Object.keys(valores).some(k =>
+        valores[k] !== undefined && valores[k] !== '');
+      if (!conAlgo) { alert('La evaluación está vacía: capture al menos una medición.'); return; }
+      if (evaluador.trim()) DB.conf('evaluador', evaluador.trim());
+      const obj = {
+        id: existente ? existente.id : DB.uuid(),
+        episodioId: eid,
+        plantillaId,
+        fecha: fecha || hoyISO(),
+        evaluador: evaluador.trim(),
+        notas: notas.trim(),
+        valores: Object.fromEntries(Object.entries(valores)
+          .filter(([, v]) => v !== undefined && v !== '')),
+        guardado: new Date().toISOString()
+      };
+      await DB.guardar('evaluaciones', obj);
+      const s = semanasDesde(episodio.fechaCirugia, obj.fecha);
+      const dlg = document.createElement('div');
+      dlg.className = 'dialog-backdrop';
+      dlg.innerHTML = '<div class="dialog">' +
+        '<div class="card-kicker">CORE Scale · Guardado en este dispositivo</div>' +
+        '<div class="dialog-title">Evaluación guardada</div>' +
+        '<div class="dialog-body">La evaluación de ' + escaparHTML(paciente.nombre) +
+        ' quedó registrada como visita del ' + fmtFecha(obj.fecha) +
+        (s !== null && s >= 0 ? ' (sem ' + s + ' PO)' : '') +
+        '. Puede exportarla a COREGDL desde su ficha.</div>' +
+        '<div class="dialog-actions">' +
+        '<button class="btn btn-secondary" id="dlgSeguir">Seguir editando</button>' +
+        '<button class="btn btn-primary" id="dlgIr">Ir al registro</button></div></div>';
+      document.body.appendChild(dlg);
+      dlg.querySelector('#dlgSeguir').addEventListener('click', () => {
+        dlg.remove();
+        if (!existente) irA('#/capturar/' + pid + '/' + eid + '/' + plantillaId + '/' + obj.id);
+      });
+      dlg.querySelector('#dlgIr').addEventListener('click', () => {
+        dlg.remove();
+        irA('#/evaluacion/' + pid + '/' + eid + '/' + obj.id);
+      });
+    });
+  }
+
+  pintar();
 }
 
 /* ================= Vista de una evaluación guardada ================= */
@@ -267,30 +355,27 @@ function _filasSeccion(s, valores) {
   }
   for (const a of calcularAutos(s, valores)) {
     if (a.num === null) continue;
-    const clase = claseLSI(a);
-    filas += '<tr><td>⚡ ' + a.et + '</td><td><span class="chip ' + clase + '">' +
+    filas += '<tr><td>⚡ ' + a.et + '</td><td><span class="tag ' + _tagAuto(a) + '">' +
       formatoAuto(a) + '</span></td></tr>';
   }
   return filas;
 }
 
 async function vistaEvaluacion(cont, pid, eid, evalId) {
+  activarNav('pacientes');
   const [paciente, episodio, ev] = await Promise.all([
     DB.obtener('pacientes', pid), DB.obtener('episodios', eid),
     DB.obtener('evaluaciones', evalId)
   ]);
-  if (!ev) { location.hash = '#/episodio/' + pid + '/' + eid; return; }
+  if (!ev) { irA(hashPerfil(pid, eid)); return; }
   const plantilla = PLANTILLAS[ev.plantillaId];
   const semanas = semanasDesde(episodio.fechaCirugia, ev.fecha);
-
-  barra(plantilla.nombre, paciente.nombre + ' · ' + fmtFecha(ev.fecha),
-    '#/episodio/' + pid + '/' + eid);
 
   let cuerpo = '';
   for (const s of plantilla.secciones) {
     const filas = _filasSeccion(s, ev.valores);
     if (!filas) continue;
-    cuerpo += '<tr class="sub"><td colspan="2">' + s.titulo + '</td></tr>' + filas;
+    cuerpo += '<tr class="grupo"><td colspan="2">' + s.titulo + '</td></tr>' + filas;
   }
 
   /* Razón isquiotibiales/cuádriceps en LCA (si existen ambos mejores) */
@@ -300,39 +385,43 @@ async function vistaEvaluacion(cont, pid, eid, evalId) {
     const i = Math.max(...['isquios_f1', 'isquios_f2', 'isquios_f3']
       .map(k => parseFloat(ev.valores[k])).filter(n => !isNaN(n)), 0);
     if (q > 0 && i > 0) {
-      cuerpo += '<tr class="sub"><td colspan="2">Razón isquiotibiales / cuádriceps</td></tr>' +
+      cuerpo += '<tr class="grupo"><td colspan="2">Razón isquiotibiales / cuádriceps</td></tr>' +
         '<tr><td>⚡ I/C lado operado</td><td>' + Math.round(i / q * 100) + ' %</td></tr>';
     }
   }
 
-  cont.innerHTML =
-    '<div class="tarjeta">' +
-    '<span class="chip">' + fmtFecha(ev.fecha) + '</span>' +
-    (semanas !== null ? '<span class="chip">Semana ' + semanas + '</span>' : '') +
-    (episodio.lado ? '<span class="chip">' + episodio.lado + '</span>' : '') +
-    (ev.evaluador ? '<span class="chip">' + escaparHTML(ev.evaluador) + '</span>' : '') +
+  cont.innerHTML = '<div class="pagina" style="max-width:760px">' +
+    atrasHTML(hashPerfil(pid, eid), paciente.nombre) +
+    '<div class="card-kicker" style="margin-top:14px">' + (plantilla.kicker || 'Evaluación') + '</div>' +
+    '<h3 style="margin:4px 0 10px">' + plantilla.nombre + '</h3>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+    '<span class="tag tag-neutral">' + fmtFecha(ev.fecha) + '</span>' +
+    (semanas !== null && semanas >= 0 ? '<span class="tag tag-accent">Semana ' + semanas + '</span>' : '') +
+    (episodio.lado ? '<span class="tag tag-neutral">' + episodio.lado + '</span>' : '') +
+    (ev.evaluador ? '<span class="tag tag-neutral">' + escaparHTML(ev.evaluador) + '</span>' : '') +
     '</div>' +
-    '<div class="tarjeta"><table class="tabla-resumen">' + cuerpo + '</table></div>' +
-    (ev.notas ? '<div class="tarjeta"><b>Notas</b><br>' + escaparHTML(ev.notas) + '</div>' : '') +
-    '<button class="btn" id="btnCopiar">📋 Copiar resumen para el expediente</button>' +
-    '<button class="btn secundario" id="btnEditar">✏️ Editar esta evaluación</button>' +
-    '<button class="btn peligro" id="btnBorrar">Eliminar evaluación</button>';
+    '<table class="table" style="margin-top:8px">' + cuerpo + '</table>' +
+    (ev.notas ? '<div class="card" style="margin-top:14px"><div class="card-kicker">Notas</div>' +
+      escaparHTML(ev.notas) + '</div>' : '') +
+    '<button class="btn btn-primary btn-block btn-grande" id="btnCopiar" style="margin-top:18px">Copiar resumen para el expediente</button>' +
+    '<button class="btn btn-secondary btn-block" id="btnEditar">Editar esta evaluación</button>' +
+    '<button class="btn btn-peligro btn-block" id="btnBorrar">Eliminar evaluación</button>' +
+    '</div>';
 
+  instalarIr(cont);
   cont.querySelector('#btnEditar').addEventListener('click', () =>
-    location.hash = '#/capturar/' + pid + '/' + eid + '/' + ev.plantillaId + '/' + ev.id);
-
+    irA('#/capturar/' + pid + '/' + eid + '/' + ev.plantillaId + '/' + ev.id));
   cont.querySelector('#btnBorrar').addEventListener('click', async () => {
     if (!confirm('¿Eliminar esta evaluación? Esta acción no se puede deshacer.')) return;
     await DB.borrar('evaluaciones', ev.id);
-    location.hash = '#/episodio/' + pid + '/' + eid;
+    irA(hashPerfil(pid, eid));
   });
-
   cont.querySelector('#btnCopiar').addEventListener('click', async (e) => {
     const texto = resumenEvaluacion(paciente, episodio, ev, plantilla, semanas);
     try {
       await navigator.clipboard.writeText(texto);
       e.target.textContent = '✓ Copiado';
-      setTimeout(() => e.target.textContent = '📋 Copiar resumen para el expediente', 1800);
+      setTimeout(() => e.target.textContent = 'Copiar resumen para el expediente', 1800);
     } catch (_) {
       prompt('Copie el texto:', texto);
     }

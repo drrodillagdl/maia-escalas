@@ -1,102 +1,82 @@
-/* CORE Scale — gráficas de evolución en SVG puro (sin librerías: la app es offline).
-   dibujarGrafica({series, unidad, min, max, objetivo}) devuelve el HTML del SVG.
-   Cada serie: { nombre, color (var CSS), puntos: [{t: Date|ms, y: número}] }   */
+/* CORE Scale — gráficas de evolución en SVG puro (sin librerías: la app es
+   offline). Réplica del estilo del diseño Modernist: tarjeta con kicker,
+   último valor grande, línea en acento con puntos, rejilla mínima de 3 líneas.
+   La serie contralateral se dibuja punteada en gris; la meta de simetría (90 %)
+   como línea discontinua sutil.
 
-function dibujarGrafica(cfg) {
-  const W = 640, H = 260, mIzq = 44, mDer = 14, mArr = 16, mAbj = 34;
-  const aw = W - mIzq - mDer, ah = H - mArr - mAbj;
+   API:
+     svgGrafica({series, objetivo})            → string SVG (viewBox 320x118)
+     tarjetaGrafica({kicker, series, unidad, objetivo, notaMenor}) → tarjeta HTML
+   Cada serie: { puntos: [{et, y}], contra?: true }  (et = etiqueta 'Sem 3')   */
 
+function svgGrafica(cfg) {
+  const W = 320, H = 118, P = 16;
   const series = (cfg.series || []).map(s => ({
     ...s,
-    puntos: (s.puntos || [])
-      .filter(p => p.y !== null && p.y !== undefined && !isNaN(p.y))
-      .map(p => ({ t: (p.t instanceof Date) ? p.t.getTime() : p.t, y: p.y }))
-      .sort((a, b) => a.t - b.t)
+    puntos: (s.puntos || []).filter(p => p.y !== null && p.y !== undefined && !isNaN(p.y))
   })).filter(s => s.puntos.length > 0);
+  if (!series.length) return '';
 
-  if (!series.length)
-    return '<p class="vacio" style="padding:20px">Aún no hay datos para graficar.</p>';
-
-  const todosT = series.flatMap(s => s.puntos.map(p => p.t));
   const todosY = series.flatMap(s => s.puntos.map(p => p.y));
   if (cfg.objetivo !== undefined) todosY.push(cfg.objetivo);
+  let min = Math.min(...todosY), max = Math.max(...todosY);
+  const rango = (max - min) || 1;
+  min -= rango * 0.15; max += rango * 0.15;
 
-  let t0 = Math.min(...todosT), t1 = Math.max(...todosT);
-  if (t0 === t1) { t0 -= 86400e3 * 7; t1 += 86400e3 * 7; }
-  let y0 = cfg.min !== undefined ? cfg.min : Math.min(...todosY);
-  let y1 = cfg.max !== undefined ? cfg.max : Math.max(...todosY);
-  if (cfg.min === undefined && cfg.max === undefined) {
-    const margen = Math.max((y1 - y0) * 0.15, y1 === y0 ? Math.abs(y1) * 0.15 + 1 : 0);
-    y0 -= margen; y1 += margen;
-  }
-  if (y0 === y1) { y0 -= 1; y1 += 1; }
+  const X = (i, n) => n > 1 ? P + i * (W - 2 * P) / (n - 1) : W / 2;
+  const Y = v => H - P - (v - min) / (max - min) * (H - 2 * P);
 
-  const X = t => mIzq + (t - t0) / (t1 - t0) * aw;
-  const Y = y => mArr + (1 - (y - y0) / (y1 - y0)) * ah;
+  let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="grafica-svg" xmlns="http://www.w3.org/2000/svg">' +
+    '<line x1="16" y1="16" x2="304" y2="16" stroke="var(--color-neutral-300)" stroke-width="1"/>' +
+    '<line x1="16" y1="59" x2="304" y2="59" stroke="var(--color-neutral-300)" stroke-width="1"/>' +
+    '<line x1="16" y1="102" x2="304" y2="102" stroke="var(--color-neutral-400)" stroke-width="1.5"/>';
 
-  let svg = '<svg class="grafica-svg" viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
-
-  /* rejilla horizontal: 4 líneas con su valor */
-  for (let i = 0; i <= 4; i++) {
-    const y = y0 + (y1 - y0) * i / 4;
-    const py = Y(y);
-    svg += '<line x1="' + mIzq + '" y1="' + py + '" x2="' + (W - mDer) + '" y2="' + py +
-      '" stroke="var(--linea)" stroke-width="1"/>';
-    svg += '<text x="' + (mIzq - 6) + '" y="' + (py + 4) + '" text-anchor="end" ' +
-      'font-size="11" fill="var(--tinta-3)">' + (Math.round(y * 10) / 10) + '</text>';
-  }
-
-  /* línea objetivo (p. ej. LSI 90 %) */
   if (cfg.objetivo !== undefined) {
-    const py = Y(cfg.objetivo);
-    svg += '<line x1="' + mIzq + '" y1="' + py + '" x2="' + (W - mDer) + '" y2="' + py +
-      '" stroke="var(--bueno)" stroke-width="1.5" stroke-dasharray="6 4"/>';
-    svg += '<text x="' + (W - mDer) + '" y="' + (py - 5) + '" text-anchor="end" ' +
-      'font-size="11" font-weight="700" fill="var(--bueno)">' + (cfg.etObjetivo || cfg.objetivo) + '</text>';
+    const py = Y(cfg.objetivo).toFixed(1);
+    svg += '<line x1="16" y1="' + py + '" x2="304" y2="' + py +
+      '" stroke="var(--color-accent-300)" stroke-width="1.5" stroke-dasharray="5 4"/>';
   }
 
-  /* fechas en el eje X: primera, última y hasta 2 intermedias */
-  const fechasEje = [...new Set(todosT)].sort((a, b) => a - b);
-  const paso = Math.max(1, Math.ceil(fechasEje.length / 4));
-  for (let i = 0; i < fechasEje.length; i += paso) {
-    const t = fechasEje[i];
-    const f = new Date(t);
-    const et = f.getDate() + ' ' + f.toLocaleDateString('es-MX', { month: 'short' });
-    svg += '<text x="' + X(t) + '" y="' + (H - 12) + '" text-anchor="middle" ' +
-      'font-size="11" fill="var(--tinta-3)">' + et + '</text>';
+  /* primero la contralateral (queda debajo), después la principal */
+  for (const s of [...series].sort((a, b) => (a.contra ? 0 : 1) - (b.contra ? 0 : 1))) {
+    const n = s.puntos.length;
+    const pts = s.puntos.map((p, i) => X(i, n).toFixed(1) + ',' + Y(p.y).toFixed(1)).join(' ');
+    const color = s.contra ? 'var(--color-neutral-500)' : 'var(--color-accent)';
+    if (n > 1)
+      svg += '<polyline points="' + pts + '" fill="none" stroke="' + color +
+        '" stroke-width="' + (s.contra ? 2 : 2.5) + '"' +
+        (s.contra ? ' stroke-dasharray="4 4"' : '') + '/>';
+    s.puntos.forEach((p, i) => {
+      svg += '<circle cx="' + X(i, n).toFixed(1) + '" cy="' + Y(p.y).toFixed(1) +
+        '" r="' + (s.contra ? 3 : 4) + '" fill="' + color + '"/>';
+    });
   }
+  return svg + '</svg>';
+}
 
-  const colores = ['var(--acento)', 'var(--tinta-3)', 'var(--medio)', 'var(--malo)', 'var(--bueno)'];
-  series.forEach((s, i) => {
-    const color = s.color || colores[i % colores.length];
-    const d = s.puntos.map((p, j) => (j ? 'L' : 'M') + X(p.t).toFixed(1) + ' ' + Y(p.y).toFixed(1)).join(' ');
-    if (s.puntos.length > 1)
-      svg += '<path d="' + d + '" fill="none" stroke="' + color +
-        '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"' +
-        (s.punteada ? ' stroke-dasharray="3 5"' : '') + '/>';
-    for (const p of s.puntos) {
-      svg += '<circle cx="' + X(p.t).toFixed(1) + '" cy="' + Y(p.y).toFixed(1) +
-        '" r="4.5" fill="' + color + '" stroke="var(--tarjeta)" stroke-width="1.5"/>';
-    }
-    /* etiqueta del último valor (pegada al borde se ancla a la derecha para no cortarse) */
-    const u = s.puntos[s.puntos.length - 1];
-    const cerca = X(u.t) > W - mDer - 60;
-    svg += '<text x="' + (cerca ? X(u.t) - 8 : X(u.t) + 8) + '" y="' + (Y(u.y) - 8) +
-      '" text-anchor="' + (cerca ? 'end' : 'start') + '" font-size="12" font-weight="800" fill="' + color + '">' +
-      (Math.round(u.y * 10) / 10) + (cfg.unidad ? ' ' + cfg.unidad : '') + '</text>';
-  });
+function tarjetaGrafica(cfg) {
+  const principal = (cfg.series || []).find(s => !s.contra && s.puntos && s.puntos.length);
+  if (!principal) return '';
+  const pts = principal.puntos.filter(p => p.y !== null && !isNaN(p.y));
+  if (!pts.length) return '';
+  const ultimo = pts[pts.length - 1], primero = pts[0];
+  const red = n => Math.round(n * 10) / 10;
+  const delta = red(ultimo.y - primero.y);
+  const hayContra = (cfg.series || []).some(s => s.contra && s.puntos && s.puntos.length);
 
-  svg += '</svg>';
-
-  /* leyenda si hay más de una serie */
-  let leyenda = '';
-  if (series.length > 1) {
-    leyenda = '<div style="display:flex;gap:14px;flex-wrap:wrap;padding:2px 8px 8px;font-size:12.5px;color:var(--tinta-2)">' +
-      series.map((s, i) => {
-        const color = s.color || colores[i % colores.length];
-        return '<span><span style="display:inline-block;width:10px;height:10px;border-radius:5px;background:' +
-          color + ';margin-right:5px"></span>' + s.nombre + '</span>';
-      }).join('') + '</div>';
-  }
-  return svg + leyenda;
+  return '<div class="card">' +
+    '<div class="card-kicker">' + cfg.kicker + '</div>' +
+    '<div class="grafica-num">' + red(ultimo.y) + (cfg.unidad ? '<span style="font-size:16px;font-weight:600;color:var(--color-neutral-600)"> ' + cfg.unidad + '</span>' : '') + '</div>' +
+    svgGrafica(cfg) +
+    '<div class="card-meta"><span>' + (primero.et || '') + '</span><span style="flex:1"></span>' +
+    (pts.length > 1 ? '<span style="color:var(--color-accent-700);font-weight:600">' +
+      (delta >= 0 ? '+' : '') + delta + (primero.et ? ' desde ' + primero.et.toLowerCase() : '') + '</span>' : '') +
+    '<span style="flex:1"></span><span>' + (ultimo.et || '') + '</span></div>' +
+    ((hayContra || cfg.objetivo !== undefined || cfg.notaMenor) ?
+      '<div class="card-meta">' +
+      (hayContra ? '<span>— gris punteado: contralateral</span>' : '') +
+      (cfg.objetivo !== undefined ? '<span>— discontinua: meta ' + cfg.objetivo + (cfg.unidad === '%' ? ' %' : '') + '</span>' : '') +
+      (cfg.notaMenor ? '<span>menor puntaje = mejor</span>' : '') +
+      '</div>' : '') +
+    '</div>';
 }

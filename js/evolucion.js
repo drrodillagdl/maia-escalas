@@ -1,72 +1,57 @@
-/* CORE Scale — evolución del paciente: gráficas de cada métrica a lo largo
-   de las citas. Las series se definen por plantilla; el criterio de simetría
-   (LSI ≥ 90 %) se dibuja como línea objetivo.                                */
+/* CORE Scale — evolución del paciente entre visitas.
+   Cada tarjeta grafica UNA métrica (estilo del diseño Modernist): línea en
+   acento, contralateral punteada en gris y, en los LSI, la meta de 90 %.
+   También arma las 3 tarjetas de resumen del perfil (ROM · LSI · escala).    */
 
+/* Especificación por plantilla: t = kicker, u = unidad, id = campo o auto,
+   contra = serie contralateral, obj = línea de meta.                          */
 const EVOLUCION_SPECS = {
   hombro: [
-    { titulo: 'Elevación anterior (°)', unidad: '°',
-      series: [['elev_act', 'Operado'], ['elev_contra', 'Contralateral', true]] },
-    { titulo: 'Abducción (°)', unidad: '°',
-      series: [['abd_act', 'Operado'], ['abd_contra', 'Contralateral', true]] },
-    { titulo: 'Rotaciones a 90° de abducción (°)', unidad: '°',
-      series: [['re_90', 'Rotación externa'], ['ri_90', 'Rotación interna']] },
-    { titulo: 'Fuerza — abducción full can (kg)', unidad: 'kg',
-      series: [['fullcan_mejor', 'Operado'], ['fullcan_contra', 'Contralateral', true]] },
-    { titulo: 'Fuerza — rotación externa (kg)', unidad: 'kg',
-      series: [['rot_re', 'Operado'], ['rot_re_c', 'Contralateral', true]] },
-    { titulo: 'Fuerza — rotación interna (kg)', unidad: 'kg',
-      series: [['rot_ri', 'Operado'], ['rot_ri_c', 'Contralateral', true]] },
-    { titulo: 'Fuerza — flexión de codo (kg)', unidad: 'kg',
-      series: [['biceps_mejor', 'Operado'], ['biceps_contra', 'Contralateral', true]] },
-    { titulo: 'Índice de simetría de fuerza (%)', unidad: '%', objetivo: 90, etObjetivo: 'meta 90 %', min: 0,
-      series: [['fullcan_lsi', 'Full can'], ['rot_re_lsi', 'Rot. externa'],
-               ['rot_ri_lsi', 'Rot. interna'], ['biceps_lsi', 'Bíceps']] },
-    { titulo: 'Perimetría de brazo: diferencia vs contralateral (cm)', unidad: 'cm',
-      series: [['peri_dif', 'Diferencia a 10 cm']] }
+    { t: 'Elevación anterior activa', u: '°', id: 'elev_act', contra: 'elev_contra' },
+    { t: 'Abducción activa', u: '°', id: 'abd_act', contra: 'abd_contra' },
+    { t: 'Rotación externa a 90°', u: '°', id: 're_90', contra: 're_90_c' },
+    { t: 'Rotación interna a 90°', u: '°', id: 'ri_90', contra: 'ri_90_c' },
+    { t: 'RE con codo al costado', u: '°', id: 're_costado', contra: 're_costado_c' },
+    { t: 'Fuerza · abducción full can', u: 'kg', id: 'fullcan_mejor', contra: 'fullcan_contra' },
+    { t: 'Fuerza · rotación externa', u: 'kg', id: 'rot_re', contra: 'rot_re_c' },
+    { t: 'Fuerza · rotación interna', u: 'kg', id: 'rot_ri', contra: 'rot_ri_c' },
+    { t: 'Fuerza · flexión de codo', u: 'kg', id: 'biceps_mejor', contra: 'biceps_contra' },
+    { t: 'LSI abducción full can', u: '%', id: 'fullcan_lsi', obj: 90 },
+    { t: 'LSI rotación externa', u: '%', id: 'rot_re_lsi', obj: 90 },
+    { t: 'LSI rotación interna', u: '%', id: 'rot_ri_lsi', obj: 90 },
+    { t: 'LSI flexión de codo', u: '%', id: 'biceps_lsi', obj: 90 },
+    { t: 'Perimetría de brazo · diferencia', u: 'cm', id: 'peri_dif' }
   ],
   lpfm: [
-    { titulo: 'Flexión de rodilla (°)', unidad: '°',
-      series: [['flex_act', 'Operada'], ['flex_contra', 'Contralateral', true]] },
-    { titulo: 'Extensión: déficit (°) — ideal 0', unidad: '°',
-      series: [['ext_act', 'Extensión activa'], ['lag', 'Retraso extensor']] },
-    { titulo: 'Fuerza — cuádriceps (kg)', unidad: 'kg',
-      series: [['cuadriceps_mejor', 'Operada'], ['cuadriceps_contra', 'Contralateral', true]] },
-    { titulo: 'Fuerza — abductores de cadera (kg)', unidad: 'kg',
-      series: [['abductores_mejor', 'Operada'], ['abductores_contra', 'Contralateral', true]] },
-    { titulo: 'Índice de simetría de fuerza (%)', unidad: '%', objetivo: 90, etObjetivo: 'meta 90 %', min: 0,
-      series: [['cuadriceps_lsi', 'Cuádriceps'], ['abductores_lsi', 'Abductores']] },
-    { titulo: 'Perimetría de muslo: diferencia vs contralateral (cm)', unidad: 'cm',
-      series: [['dif_10', 'A 10 cm'], ['dif_15', 'A 15 cm']] }
+    { t: 'Flexión activa', u: '°', id: 'flex_act', contra: 'flex_contra' },
+    { t: 'Déficit de extensión activa', u: '°', id: 'ext_act' },
+    { t: 'Retraso extensor', u: '°', id: 'lag' },
+    { t: 'Fuerza · cuádriceps', u: 'kg', id: 'cuadriceps_mejor', contra: 'cuadriceps_contra' },
+    { t: 'Fuerza · abductores de cadera', u: 'kg', id: 'abductores_mejor', contra: 'abductores_contra' },
+    { t: 'LSI cuádriceps', u: '%', id: 'cuadriceps_lsi', obj: 90 },
+    { t: 'LSI abductores', u: '%', id: 'abductores_lsi', obj: 90 },
+    { t: 'Perimetría muslo 10 cm · diferencia', u: 'cm', id: 'dif_10' },
+    { t: 'Perimetría muslo 15 cm · diferencia', u: 'cm', id: 'dif_15' }
   ],
   ptr: [
-    { titulo: 'Flexión de rodilla (°)', unidad: '°',
-      series: [['flex_act', 'Operada'], ['flex_contra', 'Contralateral', true]] },
-    { titulo: 'Déficit de extensión (°) — ideal 0', unidad: '°',
-      series: [['def_ext_act', 'Activo'], ['def_ext_pas', 'Pasivo', true]] },
-    { titulo: 'Fuerza — cuádriceps (kg)', unidad: 'kg',
-      series: [['cuadriceps_mejor', 'Operada'], ['cuadriceps_contra', 'Contralateral', true]] },
-    { titulo: 'Índice de simetría de cuádriceps (%)', unidad: '%', objetivo: 90, etObjetivo: 'meta 90 %', min: 0,
-      series: [['cuadriceps_lsi', 'Cuádriceps']] },
-    { titulo: 'Timed Up and Go (seg) — menor es mejor', unidad: 'seg',
-      series: [['tug_mejor', 'Mejor tiempo']] },
-    { titulo: 'Sentarse y levantarse en 30 seg (repeticiones)', unidad: 'rep',
-      series: [['sts_rep', 'Repeticiones']] },
-    { titulo: 'Perimetría: diferencia vs contralateral (cm)', unidad: 'cm',
-      series: [['dif_rodilla', 'Rodilla'], ['dif_muslo', 'Muslo 10 cm']] }
+    { t: 'Flexión activa', u: '°', id: 'flex_act', contra: 'flex_contra' },
+    { t: 'Déficit de extensión activa', u: '°', id: 'def_ext_act' },
+    { t: 'Fuerza · cuádriceps', u: 'kg', id: 'cuadriceps_mejor', contra: 'cuadriceps_contra' },
+    { t: 'LSI cuádriceps', u: '%', id: 'cuadriceps_lsi', obj: 90 },
+    { t: 'Timed Up and Go', u: 'seg', id: 'tug_mejor', menor: true },
+    { t: 'Sentarse y levantarse · 30 s', u: 'rep', id: 'sts_rep' },
+    { t: 'Perimetría rodilla · diferencia', u: 'cm', id: 'dif_rodilla' },
+    { t: 'Perimetría muslo · diferencia', u: 'cm', id: 'dif_muslo' }
   ],
   lca: [
-    { titulo: 'Flexión de rodilla (°)', unidad: '°',
-      series: [['flex_act', 'Operada'], ['flex_contra', 'Contralateral', true]] },
-    { titulo: 'Extensión activa (°) — ideal 0', unidad: '°',
-      series: [['ext_act', 'Operada']] },
-    { titulo: 'Fuerza — cuádriceps (kg)', unidad: 'kg',
-      series: [['cuadriceps_mejor', 'Operada'], ['cuadriceps_contra', 'Contralateral', true]] },
-    { titulo: 'Fuerza — isquiotibiales (kg)', unidad: 'kg',
-      series: [['isquios_mejor', 'Operada'], ['isquios_contra', 'Contralateral', true]] },
-    { titulo: 'Índice de simetría de fuerza (%)', unidad: '%', objetivo: 90, etObjetivo: 'meta 90 %', min: 0,
-      series: [['cuadriceps_lsi', 'Cuádriceps'], ['isquios_lsi', 'Isquiotibiales']] },
-    { titulo: 'Perimetría de muslo: diferencia vs contralateral (cm)', unidad: 'cm',
-      series: [['dif_10', 'A 10 cm'], ['dif_15', 'A 15 cm']] }
+    { t: 'Flexión activa', u: '°', id: 'flex_act', contra: 'flex_contra' },
+    { t: 'Déficit de extensión activa', u: '°', id: 'ext_act' },
+    { t: 'Fuerza · cuádriceps', u: 'kg', id: 'cuadriceps_mejor', contra: 'cuadriceps_contra' },
+    { t: 'Fuerza · isquiotibiales', u: 'kg', id: 'isquios_mejor', contra: 'isquios_contra' },
+    { t: 'LSI cuádriceps', u: '%', id: 'cuadriceps_lsi', obj: 90 },
+    { t: 'LSI isquiotibiales', u: '%', id: 'isquios_lsi', obj: 90 },
+    { t: 'Perimetría muslo 10 cm · diferencia', u: 'cm', id: 'dif_10' },
+    { t: 'Perimetría muslo 15 cm · diferencia', u: 'cm', id: 'dif_15' }
   ]
 };
 
@@ -84,57 +69,117 @@ function _valorEnEval(ev, plantilla, id) {
   return null;
 }
 
+/* Métrica principal de fuerza (LSI) y de movilidad de cada plantilla. */
+function lsiPrincipalId(pl) {
+  const sec = pl.secciones.find(s => s.tipoSeccion === 'dinamometria');
+  if (!sec) return null;
+  const a = (sec.autos || []).find(a => a.tipo === 'lsi');
+  return a ? a.id : null;
+}
+function romPrincipal(pl) {
+  return pl.region === 'hombro'
+    ? { id: 'elev_act', contra: 'elev_contra', label: 'Elevación activa (°)', corto: 'Elevación anterior activa' }
+    : { id: 'flex_act', contra: 'flex_contra', label: 'Flexión activa (°)', corto: 'Flexión activa de rodilla' };
+}
+
+function _etiquetaPunto(episodio, fecha) {
+  const s = semanasDesde(episodio.fechaCirugia, fecha);
+  return s !== null && s >= 0 ? 'Sem ' + s : fmtFechaCorta(fecha);
+}
+
+function _serieDeCampo(episodio, evals, pl, id) {
+  return evals
+    .map(ev => ({ et: _etiquetaPunto(episodio, ev.fecha), y: _valorEnEval(ev, pl, id) }))
+    .filter(p => p.y !== null);
+}
+
+/* Las 3 tarjetas de resumen del perfil: ROM · LSI de fuerza · escala. */
+function seriesResumen(episodio, evalsOrdenadas, escalas) {
+  const pl = PLANTILLAS[episodio.tipo];
+  if (!pl) return [];
+  const cfgs = [];
+
+  const rom = romPrincipal(pl);
+  const sRom = _serieDeCampo(episodio, evalsOrdenadas, pl, rom.id);
+  if (sRom.length) {
+    cfgs.push({ kicker: rom.corto + ' (°)', unidad: '°',
+      series: [{ puntos: sRom },
+        { contra: true, puntos: _serieDeCampo(episodio, evalsOrdenadas, pl, rom.contra) }] });
+  }
+
+  const idLsi = lsiPrincipalId(pl);
+  const sLsi = idLsi ? _serieDeCampo(episodio, evalsOrdenadas, pl, idLsi) : [];
+  if (sLsi.length) {
+    cfgs.push({ kicker: (pl.region === 'hombro' ? 'LSI abducción (%)' : 'LSI cuádriceps (%)'),
+      unidad: '%', objetivo: 90, series: [{ puntos: sLsi }] });
+  }
+
+  /* la escala con más resultados registrados */
+  const porEscala = {};
+  for (const r of escalas) (porEscala[r.escalaId] = porEscala[r.escalaId] || []).push(r);
+  const idEsc = Object.keys(porEscala).sort((a, b) => porEscala[b].length - porEscala[a].length)[0];
+  if (idEsc) {
+    const esc = escalaPorId(idEsc);
+    const lista = porEscala[idEsc].sort((a, b) => a.fecha < b.fecha ? -1 : 1);
+    const menor = ['eva', 'quickdash', 'dash'].includes(idEsc);
+    cfgs.push({ kicker: (esc ? esc.corto : idEsc) + ' (0-' + lista[0].maximo + ')',
+      unidad: '', notaMenor: menor,
+      series: [{ puntos: lista.map(r => ({ et: _etiquetaPunto(episodio, r.fecha), y: r.puntos })) }] });
+  }
+  return cfgs;
+}
+
+/* ---------------- vista: todas las gráficas ---------------- */
 async function vistaEvolucion(cont, pid, eid) {
+  activarNav('pacientes');
   const [paciente, episodio, evals, escalas] = await Promise.all([
     DB.obtener('pacientes', pid), DB.obtener('episodios', eid),
     DB.porIndice('evaluaciones', 'episodioId', eid),
     DB.porIndice('escalas', 'episodioId', eid)
   ]);
-  barra('Evolución', paciente.nombre, '#/episodio/' + pid + '/' + eid);
-
-  const plantilla = PLANTILLAS[episodio.tipo];
-  const specs = EVOLUCION_SPECS[episodio.tipo] || [];
+  if (!paciente || !episodio) { irA('#/'); return; }
+  const pl = PLANTILLAS[episodio.tipo];
   const evalsOrden = evals.sort((a, b) => a.fecha < b.fecha ? -1 : 1);
 
-  let htmlG = '';
-
-  if (plantilla) {
-    for (const spec of specs) {
-      const series = spec.series.map(([id, nombre, punteada]) => ({
-        nombre, punteada: !!punteada,
-        color: punteada ? 'var(--tinta-3)' : undefined,
-        puntos: evalsOrden.map(ev => ({
-          t: new Date(ev.fecha + 'T12:00:00'), y: _valorEnEval(ev, plantilla, id)
-        })).filter(p => p.y !== null)
-      })).filter(s => s.puntos.length > 0);
-      if (!series.length) continue;
-      htmlG += '<div class="tarjeta grafica-tarjeta"><h4>' + spec.titulo + '</h4>' +
-        dibujarGrafica({ series, unidad: spec.unidad, objetivo: spec.objetivo,
-          etObjetivo: spec.etObjetivo, min: spec.min }) + '</div>';
+  let tarjetas = [];
+  if (pl) {
+    for (const spec of (EVOLUCION_SPECS[episodio.tipo] || [])) {
+      const puntos = _serieDeCampo(episodio, evalsOrden, pl, spec.id);
+      if (!puntos.length) continue;
+      const series = [{ puntos }];
+      if (spec.contra) {
+        const pc = _serieDeCampo(episodio, evalsOrden, pl, spec.contra);
+        if (pc.length) series.push({ contra: true, puntos: pc });
+      }
+      tarjetas.push(tarjetaGrafica({ kicker: spec.t + ' (' + spec.u + ')', unidad: spec.u,
+        objetivo: spec.obj, notaMenor: spec.menor, series }));
     }
   }
 
-  /* Escalas funcionales: una gráfica por escala aplicada. */
+  /* una gráfica por escala aplicada */
   const porEscala = {};
   for (const r of escalas) (porEscala[r.escalaId] = porEscala[r.escalaId] || []).push(r);
   for (const idEsc of Object.keys(porEscala)) {
     const esc = escalaPorId(idEsc);
     const lista = porEscala[idEsc].sort((a, b) => a.fecha < b.fecha ? -1 : 1);
-    htmlG += '<div class="tarjeta grafica-tarjeta"><h4>' + (esc ? esc.nombre : idEsc) + '</h4>' +
-      '<p class="sub">' + (esc && esc.calcular ? (lista[0].maximo === 10 && idEsc === 'eva' ? 'Menor es mejor' : 'Mayor es mejor') : '') + '</p>' +
-      dibujarGrafica({
-        min: 0, max: lista[0].maximo,
-        series: [{ nombre: esc ? esc.corto : idEsc,
-          puntos: lista.map(r => ({ t: new Date(r.fecha + 'T12:00:00'), y: r.puntos })) }]
-      }) + '</div>';
+    tarjetas.push(tarjetaGrafica({
+      kicker: (esc ? esc.nombre : idEsc),
+      notaMenor: ['eva', 'quickdash', 'dash'].includes(idEsc),
+      series: [{ puntos: lista.map(r => ({ et: _etiquetaPunto(episodio, r.fecha), y: r.puntos })) }]
+    }));
   }
+  tarjetas = tarjetas.filter(Boolean);
 
-  if (!htmlG) {
-    htmlG = '<div class="vacio"><div class="icono">📈</div>' +
-      'Todavía no hay mediciones que graficar.<br>' +
-      'Las gráficas aparecen solas al ir guardando evaluaciones y escalas.</div>';
-  }
-
-  cont.innerHTML = htmlG +
-    '<p class="nota-pie">Cada punto es una cita. La línea punteada gris es el lado contralateral<br>y la línea verde discontinua la meta de simetría (90 %).</p>';
+  cont.innerHTML = '<div class="pagina">' +
+    atrasHTML(hashPerfil(pid, eid), paciente.nombre) +
+    '<h3 style="margin:10px 0 2px">Evolución entre visitas</h3>' +
+    '<p class="text-muted" style="font-size:13px">' + escaparHTML(dxEpisodio(episodio)) + '</p>' +
+    (tarjetas.length ?
+      '<div class="grid-graficas-2" style="margin-top:14px">' + tarjetas.join('') + '</div>' +
+      '<p class="text-muted" style="font-size:12px;margin-top:14px">Cada punto es una cita. ' +
+      'La línea gris punteada es el lado contralateral y la discontinua la meta de simetría (90 %).</p>' :
+      '<div class="vacio"><div class="icono">📈</div>Todavía no hay mediciones que graficar.<br>' +
+      'Las gráficas aparecen solas al ir guardando evaluaciones y escalas.</div>') +
+    '</div>';
+  instalarIr(cont);
 }

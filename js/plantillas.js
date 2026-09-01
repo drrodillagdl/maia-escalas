@@ -66,6 +66,8 @@ const PLANTILLAS = {
   hombro: {
     id: 'hombro',
     nombre: 'Cirugía de hombro',
+    tag: 'HOMBRO', kicker: 'Hombro · Postoperatorio',
+    desc: 'Goniometría de elevación, abducción y rotaciones; dinamometría full can, RE/RI y bíceps; perimetría de brazo.',
     titulo: 'CIRUGÍA DE HOMBRO — EVALUACIÓN POSTOPERATORIA GENERAL',
     region: 'hombro',
     lados: ['Derecha', 'Izquierda'],
@@ -164,6 +166,8 @@ const PLANTILLAS = {
   lpfm: {
     id: 'lpfm',
     nombre: 'Reconstrucción LPFM',
+    tag: 'LPFM', kicker: 'Rodilla · Patelofemoral',
+    desc: 'Goniometría, retraso extensor, derrame, perimetría, movilidad rotuliana, aprensión y dinamometría.',
     titulo: 'RECONSTRUCCIÓN DE LIGAMENTO PATELOFEMORAL MEDIAL — EVALUACIÓN POSTOPERATORIA',
     region: 'rodilla',
     lados: ['Derecha', 'Izquierda'],
@@ -264,6 +268,8 @@ const PLANTILLAS = {
   ptr: {
     id: 'ptr',
     nombre: 'Prótesis total de rodilla',
+    tag: 'PTR', kicker: 'Rodilla · Artroplastia',
+    desc: 'Goniometría, derrame, perimetría, estabilidad varo/valgo, dinamometría, TUG y sit-to-stand de 30 s.',
     titulo: 'PRÓTESIS TOTAL DE RODILLA — EVALUACIÓN POSTOPERATORIA',
     region: 'rodilla',
     lados: ['Derecha', 'Izquierda'],
@@ -363,6 +369,8 @@ const PLANTILLAS = {
   lca: {
     id: 'lca',
     nombre: 'Reconstrucción LCA',
+    tag: 'LCA', kicker: 'Rodilla · Postoperatorio',
+    desc: 'Goniometría, derrame, perimetría, Lachman, pivot shift y dinamometría de cuádriceps e isquiotibiales.',
     titulo: 'RECONSTRUCCIÓN DE LIGAMENTO CRUZADO ANTERIOR — EVALUACIÓN POSTOPERATORIA',
     region: 'rodilla',
     lados: ['Derecha', 'Izquierda'],

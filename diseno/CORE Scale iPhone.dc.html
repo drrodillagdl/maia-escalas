@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/modernist-6f73a6b8-fb82-4e95-8f63-b77971f5c14c/styles.css">
+  <script src="_ds/modernist-6f73a6b8-fb82-4e95-8f63-b77971f5c14c/_ds_bundle.js"></script>
+</helmet>
+<div style="display:flex; flex-direction:column; height:100vh; overflow:hidden; background:var(--color-bg); color:var(--color-text)">
+  <header style="display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:2px solid var(--color-divider); flex:none">
+    <svg viewBox="0 0 32 32" width="30" height="30" style="display:block" aria-label="Logotipo COREscale"><rect x="0" y="0" width="32" height="32" fill="var(--color-text)"></rect><path d="M12 24 H24" stroke="var(--color-bg)" stroke-width="3" stroke-linecap="round" fill="none"></path><path d="M12 24 L20 9.5" stroke="var(--color-bg)" stroke-width="3" stroke-linecap="round" fill="none"></path><circle cx="25" cy="22.4" r="2" fill="var(--color-bg)"></circle><circle cx="25" cy="25.6" r="2" fill="var(--color-bg)"></circle><circle cx="18.7" cy="8.2" r="2" fill="var(--color-bg)"></circle><circle cx="21.5" cy="9.8" r="2" fill="var(--color-bg)"></circle><circle cx="12" cy="24" r="4.2" fill="var(--color-text)" stroke="var(--color-bg)" stroke-width="2.2"></circle><path d="M21 24 A9 9 0 0 0 16.4 16.2" stroke="var(--color-accent)" stroke-width="2.5" fill="none"></path></svg>
+    <div style="font-family:var(--font-heading); font-size:17px; letter-spacing:-0.02em"><span style="font-weight:800">CORE</span><span style="font-weight:400">scale</span></div>
+    <div style="flex:1"></div>
+    <span style="width:7px; height:7px; background:var(--color-accent)"></span>
+    <span class="text-muted" style="font-size:11px">COREGDL</span>
+  </header>
+  <main style="flex:1; overflow:auto">
+    <sc-if value="{{ isPacientes }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:16px">
+        <div style="display:flex; align-items:baseline; gap:10px">
+          <h3 style="margin:0">Pacientes</h3>
+          <span class="text-muted" style="font-size:12px">{{ patientCount }} en seguimiento</span>
+        </div>
+        <input class="input" style="margin:12px 0 14px; height:44px" placeholder="Buscar paciente o diagnóstico" value="{{ search }}" onChange="{{ setSearch }}">
+        <div style="display:flex; flex-direction:column; gap:10px">
+          <sc-for list="{{ patientRows }}" as="pt" hint-placeholder-count="4">
+            <div class="card" onClick="{{ pt.open }}" style="cursor:pointer; gap:6px">
+              <div style="display:flex; align-items:center; gap:8px">
+                <div style="font-weight:600; font-size:15px; flex:1">{{ pt.name }}</div>
+                <span class="tag tag-accent">{{ pt.tag }}</span>
+              </div>
+              <div class="text-muted" style="font-size:12px">{{ pt.dx }}</div>
+              <div class="card-meta"><span>{{ pt.weeks }} PO</span><span>·</span><span>{{ pt.last }}</span><span style="flex:1"></span><span class="tag tag-neutral">{{ pt.trend }}</span></div>
+            </div>
+          </sc-for>
+        </div>
+        <button class="btn btn-primary btn-block" style="min-height:48px; margin-top:16px">Nuevo paciente</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isNueva }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:16px">
+        <button class="btn btn-ghost" onClick="{{ goPerfil }}">← {{ curName }}</button>
+        <h3 style="margin:8px 0 2px">Nueva evaluación</h3>
+        <p class="text-muted" style="font-size:12px">{{ curLine }}</p>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px">
+          <sc-for list="{{ protoCards }}" as="pc" hint-placeholder-count="5">
+            <div class="card" onClick="{{ pc.pick }}" style="cursor:pointer; gap:6px">
+              <div class="card-kicker">{{ pc.kicker }}</div>
+              <div class="card-title">{{ pc.name }}</div>
+              <div class="card-meta"><span>{{ pc.meta }}</span><span style="flex:1"></span><span style="font-family:var(--font-heading); font-weight:800; font-size:12px; color:var(--color-accent)">Iniciar →</span></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isPerfil }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:16px">
+        <button class="btn btn-ghost" onClick="{{ goPacientes }}">← Pacientes</button>
+        <div style="display:flex; align-items:center; gap:10px; margin-top:8px">
+          <h3 style="margin:0; flex:1">{{ curName }}</h3>
+          <span class="tag tag-accent">{{ curTag }}</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; border-top:2px solid var(--color-divider); border-bottom:2px solid var(--color-divider); padding:12px 0; margin-top:12px">
+          <div><div class="card-kicker">Edad</div><div style="font-weight:600; font-size:13px">{{ curAge }}</div></div>
+          <div><div class="card-kicker">Evolución</div><div style="font-weight:600; font-size:13px">{{ curWeeks }} semanas PO</div></div>
+          <div><div class="card-kicker">Cirugía</div><div style="font-weight:600; font-size:13px">{{ curSurg }}</div></div>
+          <div><div class="card-kicker">Expediente</div><div style="font-weight:600; font-size:13px">{{ curFolio }}</div></div>
+          <div style="grid-column:1 / -1"><div class="card-kicker">Diagnóstico</div><div style="font-weight:600; font-size:13px">{{ curDx }}</div></div>
+        </div>
+        <button class="btn btn-primary btn-block" style="min-height:48px; margin:14px 0 6px" onClick="{{ goNueva }}">Nueva evaluación</button>
+        <h5 style="margin:18px 0 10px">Evolución entre visitas</h5>
+        <div style="display:flex; flex-direction:column; gap:10px">
+          <sc-for list="{{ charts }}" as="c" hint-placeholder-count="3">
+            <div class="card">
+              <div style="display:flex; align-items:baseline; gap:8px">
+                <div class="card-kicker" style="flex:1">{{ c.kicker }}</div>
+                <div style="font-family:var(--font-heading); font-weight:800; font-size:24px; line-height:1">{{ c.last }}</div>
+              </div>
+              <svg viewBox="0 0 320 118" style="width:100%; display:block">
+                <line x1="16" y1="16" x2="304" y2="16" stroke="var(--color-neutral-300)" stroke-width="1"></line>
+                <line x1="16" y1="59" x2="304" y2="59" stroke="var(--color-neutral-300)" stroke-width="1"></line>
+                <line x1="16" y1="102" x2="304" y2="102" stroke="var(--color-neutral-400)" stroke-width="1.5"></line>
+                <polyline points="{{ c.points }}" fill="none" stroke="var(--color-accent)" stroke-width="2.5"></polyline>
+                <sc-for list="{{ c.dots }}" as="d" hint-placeholder-count="3">
+                  <circle cx="{{ d.x }}" cy="{{ d.y }}" r="4" fill="var(--color-accent)"></circle>
+                </sc-for>
+              </svg>
+              <div class="card-meta"><span>{{ c.x0 }}</span><span style="flex:1"></span><span style="color:var(--color-accent-700); font-weight:600">{{ c.delta }}</span><span style="flex:1"></span><span>{{ c.x1 }}</span></div>
+            </div>
+          </sc-for>
+        </div>
+        <h5 style="margin:20px 0 4px">Historial de visitas</h5>
+        <table class="table" style="font-size:13px">
+          <thead><tr><th>Fecha</th><th>Sem</th><th>ROM</th><th>LSI</th><th>Escala</th></tr></thead>
+          <tbody>
+            <sc-for list="{{ visitRows }}" as="v" hint-placeholder-count="4">
+              <tr><td style="font-weight:600">{{ v.date }}</td><td>{{ v.sem }}</td><td>{{ v.rom }}</td><td>{{ v.lsi }}</td><td>{{ v.score }}</td></tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <div style="height:20px"></div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isCaptura }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:16px">
+        <div style="display:flex; align-items:center; gap:8px">
+          <button class="btn btn-ghost" onClick="{{ goPerfil }}">←</button>
+          <div style="flex:1">
+            <div style="font-family:var(--font-heading); font-weight:800; font-size:15px; line-height:1.15">{{ protoName }}</div>
+            <div class="text-muted" style="font-size:11px">{{ capMeta }}</div>
+          </div>
+          <span class="tag tag-accent">{{ progress }}</span>
+        </div>
+        <div style="display:flex; gap:6px; overflow:auto; padding:12px 0; border-bottom:1px solid var(--color-divider)">
+          <sc-for list="{{ secList }}" as="sx" hint-placeholder-count="6">
+            <button onClick="{{ sx.go }}" style="{{ sx.numStyle }}">{{ sx.n }}</button>
+          </sc-for>
+        </div>
+        <h4 style="margin:16px 0 10px">{{ secTitle }}</h4>
+        <sc-if value="{{ showTech }}" hint-placeholder-val="{{ true }}">
+          <div style="background:var(--color-surface); padding:12px 14px; margin-bottom:16px">
+            <div class="card-kicker" style="margin-bottom:4px">Técnica</div>
+            <div style="font-size:12px; line-height:1.5">{{ secTech }}</div>
+          </div>
+        </sc-if>
+        <div style="display:flex; flex-direction:column; gap:16px">
+          <sc-for list="{{ fields }}" as="f" hint-placeholder-count="4">
+            <div class="field">
+              <label>{{ f.label }}</label>
+              <sc-if value="{{ f.isNum }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; align-items:stretch">
+                  <button class="btn btn-secondary" onClick="{{ f.dec }}" style="width:52px; height:52px; padding:0; font-size:22px; flex:none">−</button>
+                  <input class="input" type="text" inputMode="decimal" value="{{ f.value }}" onChange="{{ f.set }}" placeholder="—" style="height:52px; font-size:22px; font-weight:600; text-align:center; border-left:0; border-right:0">
+                  <div style="display:flex; align-items:center; padding:0 10px; border-top:1px solid var(--color-divider); border-bottom:1px solid var(--color-divider); font-size:12px; color:var(--color-neutral-600)">{{ f.unit }}</div>
+                  <button class="btn btn-secondary" onClick="{{ f.inc }}" style="width:52px; height:52px; padding:0; font-size:22px; flex:none">+</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ f.isChoice }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-wrap:wrap; gap:6px">
+                  <sc-for list="{{ f.opts }}" as="o" hint-placeholder-count="3">
+                    <button onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ f.isText }}" hint-placeholder-val="{{ false }}">
+                <input class="input" value="{{ f.value }}" onChange="{{ f.set }}" placeholder="p. ej. T12" style="height:52px; font-size:16px">
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ hasLsi }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; gap:20px; border-top:2px solid var(--color-divider); margin-top:20px; padding-top:12px">
+            <div><div class="card-kicker">Mejor</div><div style="font-family:var(--font-heading); font-weight:800; font-size:20px">{{ lsiBest }}</div></div>
+            <div><div class="card-kicker">Contralateral</div><div style="font-family:var(--font-heading); font-weight:800; font-size:20px">{{ lsiContra }}</div></div>
+            <div><div class="card-kicker">LSI</div><div style="font-family:var(--font-heading); font-weight:800; font-size:20px; color:var(--color-accent-700)">{{ lsiPct }}</div></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hasScore }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; gap:16px; align-items:flex-end; border-top:2px solid var(--color-divider); margin-top:20px; padding-top:12px">
+            <div><div class="card-kicker">QuickDASH provisional</div><div style="font-family:var(--font-heading); font-weight:800; font-size:20px; color:var(--color-accent-700)">{{ dashScore }} / 100</div></div>
+            <div class="text-muted" style="font-size:11px">{{ dashCount }}</div>
+          </div>
+        </sc-if>
+        <div style="display:flex; gap:10px; margin-top:20px; padding-bottom:24px">
+          <sc-if value="{{ canPrev }}" hint-placeholder-val="{{ false }}">
+            <button class="btn btn-secondary" onClick="{{ prevSec }}" style="min-height:48px">←</button>
+          </sc-if>
+          <sc-if value="{{ notLast }}" hint-placeholder-val="{{ true }}">
+            <button class="btn btn-primary" onClick="{{ nextSec }}" style="min-height:48px; flex:1; justify-content:flex-start">Siguiente sección →</button>
+          </sc-if>
+          <sc-if value="{{ isLast }}" hint-placeholder-val="{{ false }}">
+            <button class="btn btn-primary" onClick="{{ save }}" style="min-height:48px; flex:1; justify-content:flex-start">Guardar y sincronizar</button>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+  <nav style="display:flex; border-top:2px solid var(--color-divider); flex:none">
+    <button class="btn" onClick="{{ goPacientes }}" style="{{ tabPacStyle }}">Pacientes</button>
+    <button class="btn" onClick="{{ goNueva }}" style="{{ tabProtoStyle }}">Protocolos</button>
+  </nav>
+  <sc-if value="{{ isSaved }}" hint-placeholder-val="{{ false }}">
+    <div class="dialog-backdrop" style="z-index:50">
+      <div class="dialog">
+        <div class="card-kicker">COREGDL · Sincronizado</div>
+        <div class="dialog-title">Evaluación guardada</div>
+        <div class="dialog-body">La evaluación de {{ curName }} quedó registrada como visita de hoy (sem {{ curWeeks }} PO) y se envió al expediente {{ curFolio }}.</div>
+        <div class="dialog-actions">
+          <button class="btn btn-secondary" onClick="{{ closeSavedStay }}">Seguir editando</button>
+          <button class="btn btn-primary" onClick="{{ closeSaved }}">Ir al registro</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:393,&quot;height&quot;:852},&quot;mostrarTecnica&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Captura&quot;},&quot;pasoGrados&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;min&quot;:1,&quot;max&quot;:10,&quot;unit&quot;:&quot;°&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Captura&quot;}}">
+class Component extends DCLogic {
+  state = { screen:'pacientes', pid:0, proto:null, sec:0, vals:{}, search:'', saved:false };
+
+  componentDidMount(){ import('./core-data.js').then(m=>{ this.data=m; this.forceUpdate(); }); }
+
+  setVal(k,v){ this.setState(s=>({vals:{...s.vals,[k]:v}})); }
+
+  fieldVM(f, base){
+    const key = base + f.k, v = this.state.vals[key];
+    const degStep = this.props.pasoGrados ?? 5;
+    const numT = {deg:{step:degStep,unit:'°'}, kg:{step:0.5,unit:'kg'}, cm:{step:0.5,unit:'cm'}, sec:{step:0.1,unit:'s'}, num:{step:1,unit:'rep'}}[f.t];
+    const has = v !== undefined && v !== '';
+    const vm = {k:key, label:f.l, isNum:!!numT, isChoice:f.t==='ch', isText:f.t==='tx', unit:numT?numT.unit:'', has};
+    if(numT){
+      vm.value = v ?? '';
+      vm.set = e => this.setVal(key, e.target.value);
+      const cur = parseFloat(v); const b = isNaN(cur) ? 0 : cur;
+      vm.inc = () => this.setVal(key, String(Math.round((b + numT.step)*10)/10));
+      vm.dec = () => this.setVal(key, String(Math.round((b - numT.step)*10)/10));
+    }
+    if(f.t==='ch') vm.opts = f.o.map(o => ({label:o, style:this.optStyle(v===o), pick:()=>this.setVal(key, o)}));
+    if(f.t==='tx'){ vm.value = v ?? ''; vm.set = e => this.setVal(key, e.target.value); }
+    return vm;
+  }
+
+  optStyle(sel){
+    return {border:'1px solid var(--color-divider)', padding:'10px 12px', minHeight:'44px', fontSize:'13px', cursor:'pointer', fontFamily:'inherit', fontWeight:sel?700:400, flex:'1 1 auto',
+      background:sel?'var(--color-accent)':'transparent', color:sel?'var(--color-bg)':'inherit', borderColor:sel?'var(--color-accent)':'var(--color-divider)'};
+  }
+
+  tabStyle(active){
+    return {flex:1, minHeight:'54px', justifyContent:'center', borderTop:active?'3px solid var(--color-accent)':'3px solid transparent', borderRadius:0,
+      color:active?'var(--color-accent)':'inherit', background:'transparent'};
+  }
+
+  mkChart(kicker, series){
+    const w=320, h=118, p=16, n=series.length;
+    const vals = series.map(s=>s.v);
+    let min=Math.min(...vals), max=Math.max(...vals);
+    const range = (max-min)||1; min-=range*0.15; max+=range*0.15;
+    const X=i=> p + i*(w-2*p)/Math.max(n-1,1);
+    const Y=v=> h-p - (v-min)/(max-min)*(h-2*p);
+    const dots = series.map((s,i)=>({x:Math.round(X(i)), y:Math.round(Y(s.v))}));
+    const first=vals[0], last=vals[n-1], d=Math.round((last-first)*10)/10;
+    return {kicker, last:String(last), points:dots.map(d2=>d2.x+','+d2.y).join(' '), dots,
+      x0:'Sem '+series[0].sem, x1:'Sem '+series[n-1].sem, delta:(d>=0?'+':'')+d};
+  }
+
+  renderVals(){
+    const D = this.data;
+    if(!D) return {isPacientes:true, patientRows:[], protoCards:[], charts:[], visitRows:[], patientCount:'…', search:'',
+      tabPacStyle:this.tabStyle(true), tabProtoStyle:this.tabStyle(false)};
+    const s = this.state, pats = D.PATIENTS, protos = D.PROTOS, pat = pats[s.pid];
+    const q = s.search.toLowerCase();
+    const patientRows = pats.map((p,i)=>{
+      const vs=p.visits, dl=vs[vs.length-1].lsi - vs[Math.max(vs.length-2,0)].lsi;
+      return {name:p.name, dx:p.dx, tag:p.tag, weeks:'Sem '+p.weeks, last:p.last,
+        trend:(dl>=0?'↑ +':'↓ ')+dl+' % LSI', open:()=>this.setState({screen:'perfil', pid:i})};
+    }).filter(r=> !q || (r.name+' '+r.dx).toLowerCase().includes(q));
+
+    const protoCards = Object.keys(protos).map(id=>{
+      const pr = protos[id];
+      return {name:pr.name, kicker:pr.kicker, meta:pr.secs.length+' secciones · registro guiado',
+        pick:()=>this.setState({screen:'captura', proto:id, sec:0})};
+    });
+
+    const out = {
+      isPacientes:s.screen==='pacientes', isNueva:s.screen==='nueva', isPerfil:s.screen==='perfil', isCaptura:s.screen==='captura', isSaved:s.saved,
+      tabPacStyle:this.tabStyle(s.screen==='pacientes'||s.screen==='perfil'), tabProtoStyle:this.tabStyle(s.screen==='nueva'||s.screen==='captura'),
+      goPacientes:()=>this.setState({screen:'pacientes'}), goNueva:()=>this.setState({screen:'nueva'}), goPerfil:()=>this.setState({screen:'perfil'}),
+      closeSaved:()=>this.setState({saved:false, screen:'perfil'}), closeSavedStay:()=>this.setState({saved:false}),
+      search:s.search, setSearch:e=>this.setState({search:e.target.value}),
+      patientCount:String(pats.length), patientRows, protoCards,
+      curName:pat.name, curLine:pat.dx+' · '+pat.age+' años · Sem '+pat.weeks+' PO',
+      curAge:pat.age+' años', curDx:pat.dx, curSurg:pat.surg, curWeeks:String(pat.weeks), curFolio:'COREGDL · '+pat.folio, curTag:pat.tag,
+      showTech:this.props.mostrarTecnica ?? true,
+      charts:[ this.mkChart(pat.romLabel, pat.visits.map(v=>({sem:v.sem,v:v.rom}))),
+               this.mkChart(pat.lsiLabel, pat.visits.map(v=>({sem:v.sem,v:v.lsi}))),
+               this.mkChart(pat.scoreLabel, pat.visits.map(v=>({sem:v.sem,v:v.score}))) ],
+      visitRows:[...pat.visits].reverse().map(v=>({date:v.d, sem:String(v.sem), rom:v.rom+'°', lsi:v.lsi+' %', score:String(v.score)})),
+    };
+
+    if(s.screen==='captura' && s.proto){
+      const pr = protos[s.proto], secs = pr.secs, si = Math.min(s.sec, secs.length-1), sec = secs[si];
+      const base = s.proto+'_'+si+'_';
+      const secDone = idx => secs[idx].fields.every(f=>{ const v=this.state.vals[s.proto+'_'+idx+'_'+f.k]; return v!==undefined && v!==''; });
+      out.protoName = pr.name;
+      out.capMeta = 'Sem '+pat.weeks+' PO · '+pat.folio;
+      out.secList = secs.map((sx,i)=>{
+        const active=i===si, done=secDone(i);
+        return {n:done?'✓':String(i+1), go:()=>this.setState({sec:i}),
+          numStyle:{width:'40px', height:'40px', flex:'none', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', fontWeight:700, cursor:'pointer', fontFamily:'inherit',
+            border:active?'2px solid var(--color-accent)':'1px solid var(--color-divider)',
+            background:done?'var(--color-accent)':'transparent', color:done?'var(--color-bg)':(active?'var(--color-accent)':'inherit')}};
+      });
+      out.progress = (si+1)+' / '+secs.length;
+      out.secTitle = sec.t; out.secTech = sec.tech;
+      out.fields = sec.fields.map(f=>this.fieldVM(f, base));
+      out.canPrev = si>0; out.notLast = si<secs.length-1; out.isLast = si===secs.length-1;
+      out.prevSec = ()=>this.setState({sec:Math.max(si-1,0)});
+      out.nextSec = ()=>this.setState({sec:Math.min(si+1,secs.length-1)});
+      out.save = ()=>this.setState({saved:true});
+      out.hasLsi = !!sec.lsi;
+      if(sec.lsi){
+        const g=k=>parseFloat(this.state.vals[base+k]);
+        const at=[g('f1'),g('f2'),g('f3')].filter(x=>!isNaN(x));
+        const best=at.length?Math.max(...at):null, con=g('fc');
+        out.lsiBest = best!==null ? best+' kg' : '—';
+        out.lsiContra = !isNaN(con) ? con+' kg' : '—';
+        out.lsiPct = (best!==null && !isNaN(con) && con>0) ? Math.round(best/con*100)+' %' : '—';
+      }
+      out.hasScore = !!pr.score;
+      if(pr.score){
+        let sum=0, n=0;
+        secs.forEach((sx,i)=>sx.fields.forEach(f=>{ const v=parseInt(this.state.vals[s.proto+'_'+i+'_'+f.k]); if(!isNaN(v)){sum+=v;n++;} }));
+        out.dashScore = n ? String(Math.round(((sum/n)-1)*25)) : '—';
+        out.dashCount = n+' de 11 ítems';
+      }
+    }
+    return out;
+  }
+}
+</script>
+</body>
+</html>

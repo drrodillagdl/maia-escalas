@@ -3,12 +3,13 @@
    (stale-while-revalidate). Al publicar cambios, suba la VERSION.            */
 
 /* Al publicar cambios: subir VERSION aquí y el ?v= de index.html a la par. */
-const VERSION = 'corescale-v0.1.0';
-const V = '?v=0.1.0';
+const VERSION = 'corescale-v0.2.0';
+const V = '?v=0.2.0';
 const ARCHIVOS = [
   '.', 'index.html', 'css/style.css' + V,
   'js/db.js' + V, 'js/plantillas.js' + V, 'js/escalas.js' + V, 'js/graficas.js' + V,
   'js/eval.js' + V, 'js/escala-ui.js' + V, 'js/evolucion.js' + V, 'js/app.js' + V,
+  'fonts/archivo-latin.woff2',
   'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png',
   'icons/icon-512.png', 'icons/icon-32.png'
 ];

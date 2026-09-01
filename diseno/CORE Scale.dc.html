@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/modernist-6f73a6b8-fb82-4e95-8f63-b77971f5c14c/styles.css">
+  <script src="_ds/modernist-6f73a6b8-fb82-4e95-8f63-b77971f5c14c/_ds_bundle.js"></script>
+</helmet>
+<div style="display:flex; height:100vh; overflow:hidden; background:var(--color-bg); color:var(--color-text)">
+  <aside style="width:212px; flex:none; display:flex; flex-direction:column; border-right:2px solid var(--color-divider); padding:24px 18px">
+    <svg viewBox="0 0 32 32" width="44" height="44" style="display:block" aria-label="Logotipo COREscale"><rect x="0" y="0" width="32" height="32" fill="var(--color-text)"></rect><path d="M12 24 H24" stroke="var(--color-bg)" stroke-width="3" stroke-linecap="round" fill="none"></path><path d="M12 24 L20 9.5" stroke="var(--color-bg)" stroke-width="3" stroke-linecap="round" fill="none"></path><circle cx="25" cy="22.4" r="2" fill="var(--color-bg)"></circle><circle cx="25" cy="25.6" r="2" fill="var(--color-bg)"></circle><circle cx="18.7" cy="8.2" r="2" fill="var(--color-bg)"></circle><circle cx="21.5" cy="9.8" r="2" fill="var(--color-bg)"></circle><circle cx="12" cy="24" r="4.2" fill="var(--color-text)" stroke="var(--color-bg)" stroke-width="2.2"></circle><path d="M21 24 A9 9 0 0 0 16.4 16.2" stroke="var(--color-accent)" stroke-width="2.5" fill="none"></path></svg>
+    <div style="font-family:var(--font-heading); font-size:24px; line-height:1; letter-spacing:-0.02em; margin-top:12px"><span style="font-weight:800">CORE</span><span style="font-weight:400">scale</span></div>
+    <div style="width:30px; height:4px; background:var(--color-accent); margin:12px 0 26px"></div>
+    <button class="btn" style="{{ navPacStyle }}" onClick="{{ goPacientes }}">Pacientes</button>
+    <button class="btn" style="{{ navProtoStyle }}" onClick="{{ goNueva }}">Protocolos</button>
+    <div style="flex:1"></div>
+    <div style="border-top:2px solid var(--color-divider); padding-top:14px; display:flex; flex-direction:column; gap:6px">
+      <div class="card-kicker">COREGDL</div>
+      <div style="display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600"><span style="width:8px; height:8px; background:var(--color-accent)"></span>Conectado</div>
+      <div class="text-muted" style="font-size:11px">Expediente clínico · sincronización activa</div>
+      <div class="text-muted" style="font-size:11px; margin-top:10px">Dr. Evaluador · Ortopedia<br>Lun 1 Sep 2026</div>
+    </div>
+  </aside>
+  <main style="flex:1; overflow:auto">
+    <sc-if value="{{ isPacientes }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:28px 36px">
+        <div style="display:flex; align-items:center; gap:14px; border-bottom:2px solid var(--color-divider); padding-bottom:16px">
+          <h2 style="margin:0">Pacientes</h2>
+          <span class="text-muted" style="font-size:13px">{{ patientCount }} en seguimiento</span>
+          <div style="flex:1"></div>
+          <input class="input" style="width:250px" placeholder="Buscar paciente o diagnóstico" value="{{ search }}" onChange="{{ setSearch }}">
+          <button class="btn btn-primary">Nuevo paciente</button>
+        </div>
+        <table class="table">
+          <thead><tr><th>Paciente</th><th>Edad</th><th>Diagnóstico</th><th>Protocolo</th><th>Sem. PO</th><th>Última visita</th><th>Evolución</th></tr></thead>
+          <tbody>
+            <sc-for list="{{ patientRows }}" as="pt" hint-placeholder-count="4">
+              <tr onClick="{{ pt.open }}" style="cursor:pointer">
+                <td><div style="font-weight:600">{{ pt.name }}</div><div class="text-muted" style="font-size:11px">{{ pt.folio }}</div></td>
+                <td>{{ pt.age }}</td>
+                <td>{{ pt.dx }}</td>
+                <td><span class="tag tag-accent">{{ pt.tag }}</span></td>
+                <td>{{ pt.weeks }}</td>
+                <td>{{ pt.last }}</td>
+                <td><span class="tag tag-neutral">{{ pt.trend }}</span></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <p class="text-muted" style="font-size:12px; margin-top:14px">Toque un paciente para abrir su registro y ver la evolución entre visitas.</p>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isNueva }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:28px 36px">
+        <button class="btn btn-ghost" onClick="{{ goPerfil }}">← {{ curName }}</button>
+        <h2 style="margin:10px 0 4px">Nueva evaluación</h2>
+        <p class="text-muted" style="font-size:13px">{{ curLine }}</p>
+        <div class="hr"></div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px">
+          <sc-for list="{{ protoCards }}" as="pc" hint-placeholder-count="5">
+            <div class="card elev-sm" onClick="{{ pc.pick }}" style="cursor:pointer; gap:10px">
+              <div class="card-kicker">{{ pc.kicker }}</div>
+              <div class="card-title">{{ pc.name }}</div>
+              <p class="card-body">{{ pc.desc }}</p>
+              <div class="card-meta">{{ pc.meta }}</div>
+              <div style="font-family:var(--font-heading); font-weight:800; font-size:13px; color:var(--color-accent)">Iniciar evaluación →</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isPerfil }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:28px 36px">
+        <button class="btn btn-ghost" onClick="{{ goPacientes }}">← Pacientes</button>
+        <div style="display:flex; align-items:center; gap:12px; margin-top:10px">
+          <h2 style="margin:0">{{ curName }}</h2>
+          <span class="tag tag-accent">{{ curTag }}</span>
+          <div style="flex:1"></div>
+          <button class="btn btn-secondary">Ver en COREGDL</button>
+          <button class="btn btn-primary" onClick="{{ goNueva }}">Nueva evaluación</button>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:16px; border-top:2px solid var(--color-divider); border-bottom:2px solid var(--color-divider); padding:14px 0; margin-top:16px">
+          <div><div class="card-kicker">Edad</div><div style="font-weight:600; font-size:14px">{{ curAge }}</div></div>
+          <div><div class="card-kicker">Diagnóstico</div><div style="font-weight:600; font-size:14px">{{ curDx }}</div></div>
+          <div><div class="card-kicker">Cirugía</div><div style="font-weight:600; font-size:14px">{{ curSurg }}</div></div>
+          <div><div class="card-kicker">Evolución</div><div style="font-weight:600; font-size:14px">{{ curWeeks }} semanas PO</div></div>
+          <div><div class="card-kicker">Expediente</div><div style="font-weight:600; font-size:14px">{{ curFolio }}</div></div>
+        </div>
+        <h4 style="margin:24px 0 12px">Evolución entre visitas</h4>
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px">
+          <sc-for list="{{ charts }}" as="c" hint-placeholder-count="3">
+            <div class="card">
+              <div class="card-kicker">{{ c.kicker }}</div>
+              <div style="font-family:var(--font-heading); font-weight:800; font-size:30px; line-height:1">{{ c.last }}</div>
+              <svg viewBox="0 0 320 118" style="width:100%; display:block">
+                <line x1="16" y1="16" x2="304" y2="16" stroke="var(--color-neutral-300)" stroke-width="1"></line>
+                <line x1="16" y1="59" x2="304" y2="59" stroke="var(--color-neutral-300)" stroke-width="1"></line>
+                <line x1="16" y1="102" x2="304" y2="102" stroke="var(--color-neutral-400)" stroke-width="1.5"></line>
+                <polyline points="{{ c.points }}" fill="none" stroke="var(--color-accent)" stroke-width="2.5"></polyline>
+                <sc-for list="{{ c.dots }}" as="d" hint-placeholder-count="3">
+                  <circle cx="{{ d.x }}" cy="{{ d.y }}" r="4" fill="var(--color-accent)"></circle>
+                </sc-for>
+              </svg>
+              <div class="card-meta"><span>{{ c.x0 }}</span><span style="flex:1"></span><span>{{ c.x1 }}</span></div>
+              <div class="card-meta" style="color:var(--color-accent-700); font-weight:600">{{ c.delta }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <h4 style="margin:28px 0 4px">Historial de visitas</h4>
+        <table class="table">
+          <thead><tr><th>Fecha</th><th>Semana PO</th><th>{{ romHead }}</th><th>LSI fuerza</th><th>Escala</th><th></th></tr></thead>
+          <tbody>
+            <sc-for list="{{ visitRows }}" as="v" hint-placeholder-count="4">
+              <tr>
+                <td style="font-weight:600">{{ v.date }}</td>
+                <td>{{ v.sem }}</td>
+                <td>{{ v.rom }}</td>
+                <td>{{ v.lsi }}</td>
+                <td>{{ v.score }}</td>
+                <td><span class="tag tag-neutral">{{ v.latest }}</span></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isCaptura }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex; min-height:100%">
+        <div style="width:280px; flex:none; border-right:1px solid var(--color-divider); padding:24px 18px">
+          <button class="btn btn-ghost" onClick="{{ goPerfil }}">← {{ curName }}</button>
+          <div class="card-kicker" style="margin-top:16px">{{ protoKicker }}</div>
+          <h3 style="margin:4px 0 6px">{{ protoName }}</h3>
+          <div class="text-muted" style="font-size:12px">{{ capMeta }}</div>
+          <div class="hr"></div>
+          <sc-for list="{{ secList }}" as="sx" hint-placeholder-count="6">
+            <div onClick="{{ sx.go }}" style="{{ sx.rowStyle }}">
+              <div style="{{ sx.numStyle }}">{{ sx.n }}</div>
+              <div>{{ sx.title }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="flex:1; padding:28px 36px; max-width:780px">
+          <span class="tag tag-accent">{{ progress }}</span>
+          <h2 style="margin:12px 0 14px">{{ secTitle }}</h2>
+          <sc-if value="{{ showTech }}" hint-placeholder-val="{{ true }}">
+            <div style="background:var(--color-surface); padding:14px 16px; margin-bottom:22px">
+              <div class="card-kicker" style="margin-bottom:4px">Técnica</div>
+              <div style="font-size:13px; line-height:1.5">{{ secTech }}</div>
+            </div>
+          </sc-if>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px 24px">
+            <sc-for list="{{ fields }}" as="f" hint-placeholder-count="4">
+              <div class="field" style="min-width:0">
+                <label>{{ f.label }}</label>
+                <sc-if value="{{ f.isNum }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex; align-items:stretch; gap:0">
+                    <button class="btn btn-secondary" onClick="{{ f.dec }}" style="width:48px; height:48px; padding:0; font-size:20px; flex:none">−</button>
+                    <input class="input" type="text" inputMode="decimal" value="{{ f.value }}" onChange="{{ f.set }}" placeholder="—" style="height:48px; font-size:20px; font-weight:600; text-align:center; border-left:0; border-right:0">
+                    <div style="display:flex; align-items:center; padding:0 10px; border-top:1px solid var(--color-divider); border-bottom:1px solid var(--color-divider); font-size:12px; color:var(--color-neutral-600)">{{ f.unit }}</div>
+                    <button class="btn btn-secondary" onClick="{{ f.inc }}" style="width:48px; height:48px; padding:0; font-size:20px; flex:none">+</button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ f.isChoice }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; flex-wrap:wrap; gap:6px">
+                    <sc-for list="{{ f.opts }}" as="o" hint-placeholder-count="3">
+                      <button onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ f.isText }}" hint-placeholder-val="{{ false }}">
+                  <input class="input" value="{{ f.value }}" onChange="{{ f.set }}" placeholder="p. ej. T12" style="height:48px; font-size:16px">
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ hasLsi }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; gap:36px; border-top:2px solid var(--color-divider); margin-top:26px; padding-top:14px">
+              <div><div class="card-kicker">Mejor intento</div><div style="font-family:var(--font-heading); font-weight:800; font-size:26px">{{ lsiBest }}</div></div>
+              <div><div class="card-kicker">Contralateral</div><div style="font-family:var(--font-heading); font-weight:800; font-size:26px">{{ lsiContra }}</div></div>
+              <div><div class="card-kicker">Índice de simetría (LSI)</div><div style="font-family:var(--font-heading); font-weight:800; font-size:26px; color:var(--color-accent-700)">{{ lsiPct }}</div></div>
+              <div class="text-muted" style="font-size:11px; align-self:flex-end; max-width:200px">LSI = mejor intento ÷ contralateral × 100. Se calcula automáticamente.</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ hasScore }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; gap:36px; align-items:flex-end; border-top:2px solid var(--color-divider); margin-top:26px; padding-top:14px">
+              <div><div class="card-kicker">QuickDASH provisional</div><div style="font-family:var(--font-heading); font-weight:800; font-size:26px; color:var(--color-accent-700)">{{ dashScore }} / 100</div></div>
+              <div class="text-muted" style="font-size:11px">{{ dashCount }} respondidos · menor puntaje = mejor función</div>
+            </div>
+          </sc-if>
+          <div style="display:flex; gap:10px; border-top:2px solid var(--color-divider); margin-top:26px; padding-top:16px; padding-bottom:32px">
+            <sc-if value="{{ canPrev }}" hint-placeholder-val="{{ false }}">
+              <button class="btn btn-secondary" onClick="{{ prevSec }}" style="min-height:44px">← Anterior</button>
+            </sc-if>
+            <div style="flex:1"></div>
+            <sc-if value="{{ notLast }}" hint-placeholder-val="{{ true }}">
+              <button class="btn btn-primary" onClick="{{ nextSec }}" style="min-height:44px">Siguiente sección →</button>
+            </sc-if>
+            <sc-if value="{{ isLast }}" hint-placeholder-val="{{ false }}">
+              <button class="btn btn-primary" onClick="{{ save }}" style="min-height:44px">Guardar y sincronizar con COREGDL</button>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+  <sc-if value="{{ isSaved }}" hint-placeholder-val="{{ false }}">
+    <div class="dialog-backdrop" style="z-index:50">
+      <div class="dialog">
+        <div class="card-kicker">COREGDL · Sincronizado</div>
+        <div class="dialog-title">Evaluación guardada</div>
+        <div class="dialog-body">La evaluación de {{ curName }} quedó registrada como visita de hoy (sem {{ curWeeks }} PO) y se envió al expediente {{ curFolio }}.</div>
+        <div class="dialog-actions">
+          <button class="btn btn-secondary" onClick="{{ closeSavedStay }}">Seguir editando</button>
+          <button class="btn btn-primary" onClick="{{ closeSaved }}">Ir al registro</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1194,&quot;height&quot;:834},&quot;mostrarTecnica&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Captura&quot;},&quot;pasoGrados&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;min&quot;:1,&quot;max&quot;:10,&quot;unit&quot;:&quot;°&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Captura&quot;}}">
+class Component extends DCLogic {
+  state = { screen:'pacientes', pid:0, proto:null, sec:0, vals:{}, search:'', saved:false };
+
+  patients = [
+    {name:'María Fernanda López', age:24, dx:'Reconstrucción LCA · rodilla derecha', proto:'lca', tag:'LCA', weeks:12, folio:'GDL-08412', last:'18 Ago 2026', surg:'8 Jun 2026', romLabel:'Flexión activa (°)', lsiLabel:'LSI cuádriceps (%)', scoreLabel:'Escala funcional (%)',
+      visits:[{d:'22 Jun 2026',sem:2,rom:62,lsi:31,score:34},{d:'20 Jul 2026',sem:6,rom:98,lsi:52,score:55},{d:'10 Ago 2026',sem:9,rom:118,lsi:64,score:68},{d:'18 Ago 2026',sem:12,rom:131,lsi:78,score:81}]},
+    {name:'José Ramírez Ortiz', age:67, dx:'Prótesis total de rodilla · izquierda', proto:'ptr', tag:'PTR', weeks:6, folio:'GDL-07903', last:'25 Ago 2026', surg:'20 Jul 2026', romLabel:'Flexión activa (°)', lsiLabel:'LSI cuádriceps (%)', scoreLabel:'Escala funcional (%)',
+      visits:[{d:'3 Ago 2026',sem:2,rom:74,lsi:38,score:30},{d:'17 Ago 2026',sem:4,rom:92,lsi:47,score:42},{d:'25 Ago 2026',sem:6,rom:104,lsi:56,score:51}]},
+    {name:'Ana Sofía Herrera', age:19, dx:'Reconstrucción LPFM · rodilla derecha', proto:'lpfm', tag:'LPFM', weeks:8, folio:'GDL-08633', last:'27 Ago 2026', surg:'6 Jul 2026', romLabel:'Flexión activa (°)', lsiLabel:'LSI cuádriceps (%)', scoreLabel:'Escala funcional (%)',
+      visits:[{d:'27 Jul 2026',sem:3,rom:85,lsi:42,score:38},{d:'17 Ago 2026',sem:6,rom:112,lsi:58,score:56},{d:'27 Ago 2026',sem:8,rom:124,lsi:66,score:69}]},
+    {name:'Carlos Mendoza Ruiz', age:52, dx:'Reparación de manguito rotador · hombro derecho', proto:'hombro', tag:'HOMBRO', weeks:10, folio:'GDL-08120', last:'21 Ago 2026', surg:'22 Jun 2026', romLabel:'Elevación anterior activa (°)', lsiLabel:'LSI abducción (%)', scoreLabel:'QuickDASH (menor = mejor)',
+      visits:[{d:'13 Jul 2026',sem:3,rom:80,lsi:28,score:75},{d:'3 Ago 2026',sem:6,rom:110,lsi:44,score:57},{d:'21 Ago 2026',sem:10,rom:142,lsi:61,score:39}]},
+  ];
+
+  setVal(k,v){ this.setState(s=>({vals:{...s.vals,[k]:v}})); }
+
+  get protos(){
+    if(this._p) return this._p;
+    const kg3 = {fields:[{k:'f1',l:'Intento 1',t:'kg'},{k:'f2',l:'Intento 2',t:'kg'},{k:'f3',l:'Intento 3',t:'kg'},{k:'fc',l:'Mejor contralateral',t:'kg'}], lsi:true};
+    const gonioRod = {t:'Goniometría de rodilla', tech:'Supino. Eje del goniómetro sobre el epicóndilo femoral lateral; brazo fijo al trocánter mayor, móvil al maléolo lateral. Déficit de extensión con valor positivo, hiperextensión negativo. Repetir contralateral.', fields:[{k:'fa',l:'Flexión activa',t:'deg'},{k:'fp',l:'Flexión pasiva',t:'deg'},{k:'fcl',l:'Flexión contralateral',t:'deg'},{k:'ea',l:'Extensión activa',t:'deg'},{k:'ep',l:'Extensión pasiva',t:'deg'},{k:'ecl',l:'Extensión contralateral',t:'deg'}]};
+    const stroke = {t:'Derrame articular — stroke test', tech:'Supino, rodilla en extensión y cuádriceps relajado; barrer 2-3 veces la cara medial hacia el fondo de saco suprarrotuliano y descender por la cara lateral observando la onda de líquido.', fields:[{k:'g',l:'Grado de derrame',t:'ch',o:['0 · Sin onda','Trazas','1+','2+ · Retorno espontáneo','3+ · A tensión']}]};
+    const periMuslo = {t:'Perimetría de muslo', tech:'Desde el polo superior de la rótula marcar 10 y 15 cm proximales; cinta perpendicular al eje del fémur, ajustada sin comprimir. Repetir contralateral.', fields:[{k:'p10',l:'10 cm — operada',t:'cm'},{k:'p10c',l:'10 cm — contralateral',t:'cm'},{k:'p15',l:'15 cm — operada',t:'cm'},{k:'p15c',l:'15 cm — contralateral',t:'cm'}]};
+    const dinCuad = {t:'Dinamometría de cuádriceps', tech:'Sentado al borde de la mesa, cadera y rodilla a 90°; dinamómetro proximal a los maléolos, make test isométrico. 3 contracciones de 5 s con 30 s de descanso.', ...kg3};
+    const estOpts = ['Estable','Leve · <5 mm','Moderada · 5-10 mm','Severa · >10 mm'];
+    const dashTech = 'Última semana. 1 = Sin dificultad · 2 = Leve · 3 = Moderada · 4 = Severa · 5 = Incapaz.';
+    const li = (k,l)=>({k, l, t:'ch', o:['1','2','3','4','5']});
+    this._p = {
+      lca:{name:'Reconstrucción LCA', kicker:'Rodilla · Postoperatorio', desc:'Goniometría, derrame, perimetría, Lachman, pivot shift y dinamometría de cuádriceps e isquiotibiales.', secs:[
+        gonioRod, stroke, periMuslo,
+        {t:'Prueba de Lachman', tech:'Rodilla en 20-30° de flexión; estabilizar el fémur distal y aplicar traslación anterior firme y súbita de la tibia. Comparar con contralateral.', fields:[{k:'tr',l:'Traslación',t:'ch',o:['Negativo','1+ · 3-5 mm','2+ · 6-10 mm','3+ · >10 mm']},{k:'pf',l:'Punto final',t:'ch',o:['Firme','Ausente']}]},
+        {t:'Pivot shift', tech:'Rotación interna de la tibia y estrés en valgo mientras se flexiona progresivamente; percibir la reducción entre 20° y 40°.', fields:[{k:'r',l:'Resultado',t:'ch',o:['Negativo','1+ · Deslizamiento','2+ · Resalto','3+ · Subluxación']}]},
+        dinCuad,
+        {t:'Dinamometría de isquiotibiales', tech:'Prono, rodilla a 90°; dinamómetro proximal al talón, resistir sin ceder. 3 × 5 s, 30 s de descanso.', ...kg3},
+      ]},
+      lpfm:{name:'Reconstrucción LPFM', kicker:'Rodilla · Patelofemoral', desc:'Goniometría, retraso extensor, derrame, perimetría, movilidad rotuliana, aprensión y dinamometría.', secs:[
+        gonioRod,
+        {t:'Retraso extensor', tech:'Sentado al borde de la mesa a 90°; medir el déficit entre extensión activa sostenida y pasiva completa.', fields:[{k:'lag',l:'Retraso extensor',t:'deg'},{k:'slr',l:'Pierna recta sin retraso',t:'ch',o:['Sí','No']}]},
+        stroke, periMuslo,
+        {t:'Movilidad rotuliana', tech:'Rodilla en 20-30° sobre un rollo, cuádriceps relajado. Deslizar SUAVE (protección de la plastia) y contar cuadrantes; tilt respecto a la horizontal.', fields:[{k:'lat',l:'Deslizamiento lateral',t:'ch',o:['<1 cuadrante','1','2','3','4 · Luxable']},{k:'med',l:'Deslizamiento medial',t:'ch',o:['<1 cuadrante','1','2','3']},{k:'tilt',l:'Inclinación lateral',t:'ch',o:['Neutra o positiva','Restringida']}]},
+        {t:'Prueba de aprensión rotuliana', tech:'Desplazar la rótula hacia lateral mientras se flexiona de 0° a 30°; suspender de inmediato ante aprensión.', fields:[{k:'flx',l:'Flexión al aparecer',t:'deg'},{k:'res',l:'Resultado',t:'ch',o:['Negativa','Dudosa','Positiva']}]},
+        dinCuad,
+        {t:'Dinamometría de abductores de cadera', tech:'Decúbito lateral sobre el lado sano; dinamómetro 5 cm proximal al epicóndilo lateral. 3 × 5 s, 30 s de descanso.', ...kg3},
+      ]},
+      ptr:{name:'Prótesis total de rodilla', kicker:'Rodilla · Artroplastia', desc:'Goniometría, derrame, perimetría, estabilidad varo/valgo, dinamometría, TUG y 30s sit-to-stand.', secs:[
+        {t:'Goniometría de rodilla', tech:'Supino. Eje sobre el epicóndilo femoral lateral; brazo fijo al trocánter mayor, móvil al maléolo lateral. Déficit de extensión con valor positivo.', fields:[{k:'fa',l:'Flexión activa',t:'deg'},{k:'fp',l:'Flexión pasiva',t:'deg'},{k:'fcl',l:'Flexión contralateral',t:'deg'},{k:'da',l:'Déficit ext. activa',t:'deg'},{k:'dp',l:'Déficit ext. pasiva',t:'deg'},{k:'ecl',l:'Extensión contralateral',t:'deg'}]},
+        stroke,
+        {t:'Perimetría de rodilla y muslo', tech:'Rodilla: cinta al punto medio patelar. Muslo: 10 cm proximal al polo superior de la rótula. Repetir contralateral.', fields:[{k:'rod',l:'Rodilla — operada',t:'cm'},{k:'rodc',l:'Rodilla — contralateral',t:'cm'},{k:'m10',l:'Muslo 10 cm — operada',t:'cm'},{k:'m10c',l:'Muslo 10 cm — contralateral',t:'cm'}]},
+        {t:'Estabilidad coronal — varo / valgo', tech:'Estrés sostenido en valgo y varo, primero en extensión completa y después a 30° de flexión; registrar la apertura percibida.', fields:[{k:'vg0',l:'Valgo 0°',t:'ch',o:estOpts},{k:'vg30',l:'Valgo 30°',t:'ch',o:estOpts},{k:'vr0',l:'Varo 0°',t:'ch',o:estOpts},{k:'vr30',l:'Varo 30°',t:'ch',o:estOpts}]},
+        dinCuad,
+        {t:'Timed Up and Go (TUG)', tech:'Silla con descansabrazos, línea a 3 m. 1 intento de práctica y 2 cronometrados con 1 min de descanso; detener al tocar el respaldo.', fields:[{k:'t1',l:'Tiempo 1',t:'sec'},{k:'t2',l:'Tiempo 2',t:'sec'},{k:'aux',l:'Auxiliar de marcha',t:'ch',o:['Ninguno','Bastón','Andadera','Muletas']}]},
+        {t:'Sentarse y levantarse — 30 s', tech:'Silla sin descansabrazos contra la pared, brazos cruzados; contar repeticiones completas en 30 segundos.', fields:[{k:'reps',l:'Repeticiones completas',t:'num'}]},
+      ]},
+      hombro:{name:'Cirugía de hombro', kicker:'Hombro · Postoperatorio', desc:'Goniometría de elevación, abducción y rotaciones; dinamometría full can, RE/RI y bíceps; perimetría de brazo.', secs:[
+        {t:'Goniometría — elevación y abducción', tech:'De pie o sentado, tronco erguido, sin compensación escapular. Eje bajo el acromion; brazo fijo paralelo al tronco, móvil sobre el húmero. Máximo activo y después pasivo.', fields:[{k:'ela',l:'Elevación ant. activa',t:'deg'},{k:'elp',l:'Elevación ant. pasiva',t:'deg'},{k:'elc',l:'Elevación contralateral',t:'deg'},{k:'aba',l:'Abducción activa',t:'deg'},{k:'abp',l:'Abducción pasiva',t:'deg'},{k:'abc',l:'Abducción contralateral',t:'deg'}]},
+        {t:'Goniometría — rotaciones', tech:'RE con codo al costado a 90° y antebrazo neutro; rotaciones a 90° de abducción en supino; RI funcional: apófisis espinosa alcanzada con el pulgar.', fields:[{k:'rec',l:'RE codo al costado',t:'deg'},{k:'re9',l:'RE a 90° abd.',t:'deg'},{k:'ri9',l:'RI a 90° abd.',t:'deg'},{k:'recc',l:'RE contralateral',t:'deg'},{k:'re9c',l:'RE 90° contralateral',t:'deg'},{k:'ri9c',l:'RI 90° contralateral',t:'deg'},{k:'rif',l:'RI funcional (nivel)',t:'tx'},{k:'rifc',l:'RI funcional contralateral',t:'tx'}]},
+        {t:'Dinamometría — abducción (full can)', tech:'Brazo a 90° en el plano escapular, pulgar arriba; dinamómetro proximal a la muñeca, make test. 3 × 5 s, 30 s de descanso.', ...kg3},
+        {t:'Dinamometría — rotación externa e interna', tech:'Sentado, codo al costado a 90°, antebrazo neutro; dinamómetro dorsal (RE) o palmar (RI) de la muñeca; resistir sin ceder.', fields:[{k:'re',l:'RE — mejor de 3',t:'kg'},{k:'rec2',l:'RE contralateral',t:'kg'},{k:'ri',l:'RI — mejor de 3',t:'kg'},{k:'ric',l:'RI contralateral',t:'kg'}]},
+        {t:'Dinamometría — flexión de codo', tech:'Brazo al tronco, codo a 90° en supinación completa; dinamómetro proximal a la muñeca. 3 × 5 s, 30 s de descanso.', ...kg3},
+        {t:'Perimetría de brazo', tech:'Brazo relajado, codo extendido; marcar 10 cm proximal al epicóndilo lateral, cinta perpendicular al húmero.', fields:[{k:'b10',l:'Brazo 10 cm — operado',t:'cm'},{k:'b10c',l:'Brazo 10 cm — contralateral',t:'cm'}]},
+      ]},
+      quickdash:{name:'QuickDASH', kicker:'Escala reportada por el paciente', desc:'11 ítems sobre función del miembro superior en la última semana. Puntaje 0-100, menor = mejor.', score:true, secs:[
+        {t:'Función (ítems 1-6)', tech:dashTech, fields:[li('i1','1 · Abrir un frasco apretado o nuevo'),li('i2','2 · Realizar tareas domésticas pesadas'),li('i3','3 · Cargar una bolsa del mandado o portafolio'),li('i4','4 · Lavarse la espalda'),li('i5','5 · Cortar alimentos con cuchillo'),li('i6','6 · Actividades recreativas con esfuerzo del brazo')]},
+        {t:'Impacto (ítems 7-8)', tech:dashTech, fields:[li('i7','7 · Interferencia con actividades sociales'),li('i8','8 · Limitación en trabajo u otras actividades')]},
+        {t:'Síntomas (ítems 9-11)', tech:dashTech, fields:[li('i9','9 · Dolor en brazo, hombro o mano'),li('i10','10 · Hormigueo en brazo, hombro o mano'),li('i11','11 · Dificultad para dormir por el dolor')]},
+      ]},
+    };
+    return this._p;
+  }
+
+  fieldVM(f, base){
+    const key = base + f.k, v = this.state.vals[key];
+    const degStep = this.props.pasoGrados ?? 5;
+    const numT = {deg:{step:degStep,unit:'°'}, kg:{step:0.5,unit:'kg'}, cm:{step:0.5,unit:'cm'}, sec:{step:0.1,unit:'s'}, num:{step:1,unit:'rep'}}[f.t];
+    const has = v !== undefined && v !== '';
+    const vm = {k:key, label:f.l, isNum:!!numT, isChoice:f.t==='ch', isText:f.t==='tx', unit:numT?numT.unit:'', has};
+    if(numT){
+      vm.value = v ?? '';
+      vm.set = e => this.setVal(key, e.target.value);
+      const cur = parseFloat(v); const b = isNaN(cur) ? 0 : cur;
+      vm.inc = () => this.setVal(key, String(Math.round((b + numT.step)*10)/10));
+      vm.dec = () => this.setVal(key, String(Math.round((b - numT.step)*10)/10));
+    }
+    if(f.t==='ch') vm.opts = f.o.map(o => ({label:o, style:this.optStyle(v===o), pick:()=>this.setVal(key, o)}));
+    if(f.t==='tx'){ vm.value = v ?? ''; vm.set = e => this.setVal(key, e.target.value); }
+    return vm;
+  }
+
+  optStyle(sel){
+    return {border:'1px solid var(--color-divider)', padding:'10px 14px', minHeight:'44px', fontSize:'13px', cursor:'pointer', fontFamily:'inherit', fontWeight:sel?700:400,
+      background:sel?'var(--color-accent)':'transparent', color:sel?'var(--color-bg)':'inherit', borderColor:sel?'var(--color-accent)':'var(--color-divider)'};
+  }
+
+  navStyle(active){
+    return {justifyContent:'flex-start', padding:'10px 12px', width:'100%', borderLeft:active?'3px solid var(--color-accent)':'3px solid transparent',
+      background:active?'var(--color-surface)':'transparent', borderRadius:0, marginBottom:'2px'};
+  }
+
+  mkChart(kicker, series){
+    const w=320, h=118, p=16, n=series.length;
+    const vals = series.map(s=>s.v);
+    let min=Math.min(...vals), max=Math.max(...vals);
+    const range = (max-min)||1; min-=range*0.15; max+=range*0.15;
+    const X=i=> p + i*(w-2*p)/Math.max(n-1,1);
+    const Y=v=> h-p - (v-min)/(max-min)*(h-2*p);
+    const dots = series.map((s,i)=>({x:Math.round(X(i)), y:Math.round(Y(s.v))}));
+    const first=vals[0], last=vals[n-1], d=Math.round((last-first)*10)/10;
+    return {kicker, last:String(last), points:dots.map(d2=>d2.x+','+d2.y).join(' '), dots,
+      x0:'Sem '+series[0].sem, x1:'Sem '+series[n-1].sem,
+      delta:(d>=0?'+':'')+d+' desde sem '+series[0].sem};
+  }
+
+  renderVals(){
+    const s = this.state, pats = this.patients, pat = pats[s.pid];
+    const protos = this.protos;
+    const q = s.search.toLowerCase();
+    const patientRows = pats.map((p,i)=>{
+      const vs=p.visits, dl=vs[vs.length-1].lsi - vs[Math.max(vs.length-2,0)].lsi;
+      return {name:p.name, folio:'COREGDL · '+p.folio, age:p.age+' años', dx:p.dx, tag:p.tag, weeks:'Sem '+p.weeks, last:p.last,
+        trend:(dl>=0?'↑ +':'↓ ')+dl+' % LSI', open:()=>this.setState({screen:'perfil', pid:i})};
+    }).filter(r=> !q || (r.name+' '+r.dx).toLowerCase().includes(q));
+
+    const protoCards = Object.keys(protos).map(id=>{
+      const pr = protos[id];
+      return {name:pr.name, kicker:pr.kicker, desc:pr.desc, meta:pr.secs.length+' secciones · registro guiado',
+        pick:()=>this.setState({screen:'captura', proto:id, sec:0})};
+    });
+
+    const out = {
+      isPacientes:s.screen==='pacientes', isNueva:s.screen==='nueva', isPerfil:s.screen==='perfil', isCaptura:s.screen==='captura', isSaved:s.saved,
+      navPacStyle:this.navStyle(s.screen==='pacientes'), navProtoStyle:this.navStyle(s.screen!=='pacientes'),
+      goPacientes:()=>this.setState({screen:'pacientes'}), goNueva:()=>this.setState({screen:'nueva'}), goPerfil:()=>this.setState({screen:'perfil'}),
+      closeSaved:()=>this.setState({saved:false, screen:'perfil'}), closeSavedStay:()=>this.setState({saved:false}),
+      search:s.search, setSearch:e=>this.setState({search:e.target.value}),
+      patientCount:String(pats.length), patientRows, protoCards,
+      curName:pat.name, curLine:pat.dx+' · '+pat.age+' años · Sem '+pat.weeks+' PO · Expediente '+pat.folio,
+      curAge:pat.age+' años', curDx:pat.dx, curSurg:pat.surg, curWeeks:String(pat.weeks), curFolio:'COREGDL · '+pat.folio, curTag:pat.tag, curLast:pat.last,
+      romHead:pat.romLabel, showTech:this.props.mostrarTecnica ?? true,
+      charts:[ this.mkChart(pat.romLabel, pat.visits.map(v=>({sem:v.sem,v:v.rom}))),
+               this.mkChart(pat.lsiLabel, pat.visits.map(v=>({sem:v.sem,v:v.lsi}))),
+               this.mkChart(pat.scoreLabel, pat.visits.map(v=>({sem:v.sem,v:v.score}))) ],
+      visitRows:[...pat.visits].reverse().map((v,i)=>({date:v.d, sem:'Sem '+v.sem, rom:v.rom+'°', lsi:v.lsi+' %', score:String(v.score), latest:i===0?'Más reciente':''})),
+    };
+
+    if(s.screen==='captura' && s.proto){
+      const pr = protos[s.proto], secs = pr.secs, si = Math.min(s.sec, secs.length-1), sec = secs[si];
+      const base = s.proto+'_'+si+'_';
+      const fields = sec.fields.map(f=>this.fieldVM(f, base));
+      const secDone = idx => secs[idx].fields.every(f=>{ const v=this.state.vals[s.proto+'_'+idx+'_'+f.k]; return v!==undefined && v!==''; });
+      out.protoName = pr.name; out.protoKicker = 'Evaluación postoperatoria';
+      out.capMeta = 'Sem '+pat.weeks+' PO · 1 Sep 2026 · '+pat.folio;
+      out.secList = secs.map((sx,i)=>{
+        const active=i===si, done=secDone(i);
+        return {n:done?'✓':String(i+1), title:sx.t, go:()=>this.setState({sec:i}),
+          rowStyle:{display:'flex', gap:'10px', alignItems:'center', padding:'10px 8px', cursor:'pointer', fontSize:'13px', lineHeight:1.25,
+            borderLeft:active?'3px solid var(--color-accent)':'3px solid transparent', background:active?'var(--color-surface)':'transparent', fontWeight:active?600:400},
+          numStyle:{width:'24px', height:'24px', flex:'none', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'12px', fontWeight:700,
+            border:'1px solid', borderColor:done?'var(--color-accent)':'var(--color-divider)', background:done?'var(--color-accent)':'transparent', color:done?'var(--color-bg)':'inherit'}};
+      });
+      out.progress = 'Sección '+(si+1)+' de '+secs.length;
+      out.secTitle = sec.t; out.secTech = sec.tech; out.fields = fields;
+      out.canPrev = si>0; out.notLast = si<secs.length-1; out.isLast = si===secs.length-1;
+      out.prevSec = ()=>this.setState({sec:Math.max(si-1,0)});
+      out.nextSec = ()=>this.setState({sec:Math.min(si+1,secs.length-1)});
+      out.save = ()=>this.setState({saved:true});
+      out.hasLsi = !!sec.lsi;
+      if(sec.lsi){
+        const g=k=>parseFloat(this.state.vals[base+k]);
+        const at=[g('f1'),g('f2'),g('f3')].filter(x=>!isNaN(x));
+        const best=at.length?Math.max(...at):null, con=g('fc');
+        out.lsiBest = best!==null ? best+' kg' : '—';
+        out.lsiContra = !isNaN(con) ? con+' kg' : '—';
+        out.lsiPct = (best!==null && !isNaN(con) && con>0) ? Math.round(best/con*100)+' %' : '—';
+      }
+      out.hasScore = !!pr.score;
+      if(pr.score){
+        let sum=0, n=0;
+        secs.forEach((sx,i)=>sx.fields.forEach(f=>{ const v=parseInt(this.state.vals[s.proto+'_'+i+'_'+f.k]); if(!isNaN(v)){sum+=v;n++;} }));
+        out.dashScore = n ? String(Math.round(((sum/n)-1)*25)) : '—';
+        out.dashCount = n+' de 11 ítems';
+      }
+    }
+    return out;
+  }
+}
+</script>
+</body>
+</html>
