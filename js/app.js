@@ -4,7 +4,7 @@
    Preparada para conectarse a COREGDL: cada paciente admite un "ID en COREGDL"
    y la exportación produce el JSON de intercambio.                            */
 
-const VERSION_APP = '0.2.0';
+const VERSION_APP = '0.2.1';
 
 /* ---------------- utilidades ---------------- */
 function hoyISO() {

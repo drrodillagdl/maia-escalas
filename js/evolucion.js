@@ -52,6 +52,17 @@ const EVOLUCION_SPECS = {
     { t: 'LSI isquiotibiales', u: '%', id: 'isquios_lsi', obj: 90 },
     { t: 'Perimetría muslo 10 cm · diferencia', u: 'cm', id: 'dif_10' },
     { t: 'Perimetría muslo 15 cm · diferencia', u: 'cm', id: 'dif_15' }
+  ],
+  artro: [
+    { t: 'Flexión activa', u: '°', id: 'flex_act', contra: 'flex_contra' },
+    { t: 'Déficit de extensión activa', u: '°', id: 'ext_act' },
+    { t: 'Retraso extensor', u: '°', id: 'lag' },
+    { t: 'Fuerza · cuádriceps', u: 'kg', id: 'cuadriceps_mejor', contra: 'cuadriceps_contra' },
+    { t: 'Fuerza · isquiotibiales', u: 'kg', id: 'isquios_mejor', contra: 'isquios_contra' },
+    { t: 'LSI cuádriceps', u: '%', id: 'cuadriceps_lsi', obj: 90 },
+    { t: 'LSI isquiotibiales', u: '%', id: 'isquios_lsi', obj: 90 },
+    { t: 'Perimetría muslo 10 cm · diferencia', u: 'cm', id: 'dif_10' },
+    { t: 'Perimetría muslo 15 cm · diferencia', u: 'cm', id: 'dif_15' }
   ]
 };
 

@@ -3,8 +3,8 @@
    (stale-while-revalidate). Al publicar cambios, suba la VERSION.            */
 
 /* Al publicar cambios: subir VERSION aquí y el ?v= de index.html a la par. */
-const VERSION = 'corescale-v0.2.0';
-const V = '?v=0.2.0';
+const VERSION = 'corescale-v0.2.1';
+const V = '?v=0.2.1';
 const ARCHIVOS = [
   '.', 'index.html', 'css/style.css' + V,
   'js/db.js' + V, 'js/plantillas.js' + V, 'js/escalas.js' + V, 'js/graficas.js' + V,

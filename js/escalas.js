@@ -425,6 +425,7 @@ const ESCALAS_SUGERIDAS = {
   lpfm: ['kujala', 'lysholm', 'eva', 'sane', 'tegner'],
   ptr: ['koosjr', 'eva', 'sane'],
   lca: ['ikdc', 'lysholm', 'tegner', 'eva', 'sane'],
+  artro: ['lysholm', 'ikdc', 'koosjr', 'tegner', 'eva', 'sane'],
   otro: ['eva', 'sane']
 };
 

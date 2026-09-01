@@ -451,6 +451,96 @@ const PLANTILLAS = {
         'Registrar cada intento en kilogramos, el mejor valor y el mejor valor contralateral.'
       ])
     ]
+  },
+
+  /* ========= ARTROSCOPIA DE RODILLA — POSTOPERATORIO GENERAL ========= */
+  artro: {
+    id: 'artro',
+    nombre: 'Artroscopia de rodilla',
+    tag: 'ARTRO', kicker: 'Rodilla · Postoperatorio',
+    desc: 'Protocolo general para cualquier artroscopia de rodilla (menisco, cartílago, cuerpos libres, plica…): goniometría, retraso extensor, derrame, interlíneas y portales, perimetría y dinamometría.',
+    titulo: 'ARTROSCOPIA DE RODILLA — EVALUACIÓN POSTOPERATORIA GENERAL',
+    region: 'rodilla',
+    lados: ['Derecha', 'Izquierda'],
+    secciones: [
+      {
+        id: 'gonio', titulo: 'Goniometría de rodilla',
+        instrucciones: [
+          'Paciente en decúbito supino con la extremidad relajada sobre la mesa de exploración.',
+          'Centrar el eje del goniómetro sobre el epicóndilo femoral lateral; brazo fijo dirigido al trocánter mayor y brazo móvil dirigido al maléolo lateral.',
+          'Flexión: pedir «doble la rodilla lo más que pueda» (activa) y después llevarla el explorador al máximo tolerado (pasiva). Extensión: pedir «estire la rodilla por completo»; registrar déficit con valor positivo e hiperextensión con valor negativo.',
+          'Registrar en grados y repetir en la rodilla contralateral.'
+        ],
+        campos: [
+          { id: 'flex_act', et: 'Flexión activa', tipo: 'num', unidad: '°', min: 0, max: 160 },
+          { id: 'flex_pas', et: 'Flexión pasiva', tipo: 'num', unidad: '°', min: 0, max: 160 },
+          { id: 'flex_contra', et: 'Flexión contralateral', tipo: 'num', unidad: '°', min: 0, max: 160 },
+          { id: 'ext_act', et: 'Extensión activa', tipo: 'num', unidad: '°', min: -15, max: 40, neg: true },
+          { id: 'ext_pas', et: 'Extensión pasiva', tipo: 'num', unidad: '°', min: -15, max: 40, neg: true },
+          { id: 'ext_contra', et: 'Extensión contralateral', tipo: 'num', unidad: '°', min: -15, max: 40, neg: true }
+        ],
+        autos: [
+          { id: 'flex_pct', et: 'Flexión activa vs contralateral', tipo: 'lsi', de: ['flex_act', 'flex_contra'], unidad: '%' }
+        ]
+      },
+      {
+        id: 'lag', titulo: 'Retraso extensor (extension lag)',
+        instrucciones: [
+          'Paciente sentado al borde de la mesa con la rodilla a 90°; pedir «estire la rodilla por completo y sosténgala».',
+          'Medir con goniómetro el déficit entre la extensión activa máxima sostenida y la extensión pasiva completa; registrar además si sostiene la elevación de pierna recta sin caída de la rodilla.'
+        ],
+        campos: [
+          { id: 'lag', et: 'Retraso extensor', tipo: 'num', unidad: '°', min: 0, max: 60 },
+          { id: 'slr', et: 'Elevación de pierna recta sin retraso', tipo: 'sino' }
+        ]
+      },
+      SECCION_DERRAME,
+      {
+        id: 'interlineas', titulo: 'Interlíneas articulares y portales',
+        instrucciones: [
+          'Paciente en decúbito supino con la rodilla en 90° de flexión y el pie apoyado en la mesa.',
+          'Palpar la interlínea medial y la lateral de adelante hacia atrás con el pulgar; registrar si la palpación despierta dolor y su intensidad.',
+          'Revisar los portales artroscópicos y heridas: cicatrización, eritema, secreción o dehiscencia.'
+        ],
+        campos: [
+          { id: 'interlinea_med', et: 'Interlínea medial', tipo: 'ops', ops: [
+            { v: 'no', et: 'No dolorosa' }, { v: 'leve', et: 'Dolorosa leve' },
+            { v: 'marcada', et: 'Dolorosa marcada' } ] },
+          { id: 'interlinea_lat', et: 'Interlínea lateral', tipo: 'ops', ops: [
+            { v: 'no', et: 'No dolorosa' }, { v: 'leve', et: 'Dolorosa leve' },
+            { v: 'marcada', et: 'Dolorosa marcada' } ] },
+          { id: 'portales', et: 'Portales / heridas', tipo: 'ops', ops: [
+            { v: 'normal', et: 'Cicatrización normal' },
+            { v: 'alterada', et: 'Eritema / secreción / dehiscencia' } ] }
+        ]
+      },
+      {
+        id: 'perimetria', titulo: 'Perimetría de muslo',
+        instrucciones: [
+          'Paciente en decúbito supino, rodilla en extensión y musculatura relajada.',
+          'Medir desde el polo superior de la rótula y marcar puntos a 10 cm y 15 cm en sentido proximal.',
+          'Colocar la cinta perpendicular al eje del fémur sobre cada marca, ajustada sin comprimir la piel; registrar en cm y repetir en la extremidad contralateral.'
+        ],
+        campos: [
+          { id: 'peri_10', et: '10 cm — operada', tipo: 'num', unidad: 'cm', min: 20, max: 100, paso: 0.1 },
+          { id: 'peri_10_c', et: '10 cm — contralateral', tipo: 'num', unidad: 'cm', min: 20, max: 100, paso: 0.1 },
+          { id: 'peri_15', et: '15 cm — operada', tipo: 'num', unidad: 'cm', min: 20, max: 100, paso: 0.1 },
+          { id: 'peri_15_c', et: '15 cm — contralateral', tipo: 'num', unidad: 'cm', min: 20, max: 100, paso: 0.1 }
+        ],
+        autos: [
+          { id: 'dif_10', et: 'Diferencia a 10 cm', tipo: 'dif', de: ['peri_10', 'peri_10_c'], unidad: 'cm' },
+          { id: 'dif_15', et: 'Diferencia a 15 cm', tipo: 'dif', de: ['peri_15', 'peri_15_c'], unidad: 'cm',
+            nota: 'Una diferencia negativa indica atrofia del lado operado.' }
+        ]
+      },
+      _dinamo('cuadriceps', 'Dinamometría de cuádriceps', INSTR_DINAMO_CUAD),
+      _dinamo('isquios', 'Dinamometría de isquiotibiales', [
+        'Paciente en decúbito prono, rodilla flexionada a 90°.',
+        'Colocar el dinamómetro manual sobre la cara posterior de la pierna, inmediatamente proximal al talón; el explorador resiste sin ceder.',
+        'Comando: «doble la rodilla contra mi mano con toda su fuerza». Contracción máxima de 5 segundos, 3 intentos, 30 segundos de descanso.',
+        'Registrar cada intento en kilogramos, el mejor valor y el mejor valor contralateral.'
+      ])
+    ]
   }
 };
 
