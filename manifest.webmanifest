@@ -1,0 +1,16 @@
+{
+  "name": "CORE Scale",
+  "short_name": "CORE Scale",
+  "description": "Evaluación objetiva postoperatoria de ortopedia: goniometría, dinamometría y escalas funcionales con seguimiento por paciente.",
+  "lang": "es",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f2f4f5",
+  "theme_color": "#0d5c63",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

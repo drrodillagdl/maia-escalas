@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "core-scale",
+      "//": "App 100% estática: basta un servidor de archivos. Los datos de pacientes NO están aquí (viven en el navegador de cada dispositivo), pero igual se sirve solo en 127.0.0.1.",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8791", "--bind", "127.0.0.1"],
+      "cwd": ".",
+      "port": 8791,
+      "autoPort": false
+    }
+  ]
+}

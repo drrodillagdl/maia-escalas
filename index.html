@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>CORE Scale</title>
+  <meta name="description" content="Evaluación objetiva postoperatoria de ortopedia: goniometría, dinamometría y escalas funcionales.">
+
+  <!-- PWA / instalable en iPad y iPhone -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CORE Scale">
+  <meta name="theme-color" content="#0d5c63">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+
+  <!-- El ?v= debe coincidir con VERSION de sw.js: subir ambos en cada publicación -->
+  <link rel="stylesheet" href="css/style.css?v=0.1.0">
+</head>
+<body>
+  <div id="app">
+    <header id="barra">
+      <button id="btnAtras" class="btn-icono oculto" aria-label="Atrás">‹</button>
+      <div id="tituloBarra">
+        <h1 id="tituloApp">CORE <span>Scale</span></h1>
+        <p id="subtituloBarra"></p>
+      </div>
+      <button id="btnAjustes" class="btn-icono" aria-label="Ajustes">⚙</button>
+    </header>
+    <main id="vista" aria-live="polite"></main>
+  </div>
+
+  <script src="js/db.js?v=0.1.0"></script>
+  <script src="js/plantillas.js?v=0.1.0"></script>
+  <script src="js/escalas.js?v=0.1.0"></script>
+  <script src="js/graficas.js?v=0.1.0"></script>
+  <script src="js/eval.js?v=0.1.0"></script>
+  <script src="js/escala-ui.js?v=0.1.0"></script>
+  <script src="js/evolucion.js?v=0.1.0"></script>
+  <script src="js/app.js?v=0.1.0"></script>
+  <script>
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
