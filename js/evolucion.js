@@ -63,6 +63,52 @@ const EVOLUCION_SPECS = {
     { t: 'LSI isquiotibiales', u: '%', id: 'isquios_lsi', obj: 90 },
     { t: 'Perimetría muslo 10 cm · diferencia', u: 'cm', id: 'dif_10' },
     { t: 'Perimetría muslo 15 cm · diferencia', u: 'cm', id: 'dif_15' }
+  ],
+  tobillo: [
+    { t: 'Dorsiflexión activa', u: '°', id: 'df_act', contra: 'df_contra' },
+    { t: 'Flexión plantar activa', u: '°', id: 'fp_act', contra: 'fp_contra' },
+    { t: 'Inversión', u: '°', id: 'inv', contra: 'inv_contra' },
+    { t: 'Eversión', u: '°', id: 'ev', contra: 'ev_contra' },
+    { t: 'Lunge test (dedo-pared)', u: 'cm', id: 'lunge', contra: 'lunge_contra' },
+    { t: 'Fuerza · dorsiflexores', u: 'kg', id: 'dorsiflexores_mejor', contra: 'dorsiflexores_contra' },
+    { t: 'LSI dorsiflexores', u: '%', id: 'dorsiflexores_lsi', obj: 90 },
+    { t: 'Elevaciones de talón', u: 'rep', id: 'talon_rep', contra: 'talon_contra' },
+    { t: 'LSI elevaciones de talón', u: '%', id: 'talon_lsi', obj: 90 },
+    { t: 'Figura en 8 · diferencia (edema)', u: 'cm', id: 'ocho_dif' }
+  ],
+  cadera: [
+    { t: 'Flexión activa', u: '°', id: 'flex_act', contra: 'flex_contra' },
+    { t: 'Extensión activa', u: '°', id: 'ext_act', contra: 'ext_contra' },
+    { t: 'Abducción', u: '°', id: 'abd', contra: 'abd_contra' },
+    { t: 'Rotación interna', u: '°', id: 'ri', contra: 'ri_contra' },
+    { t: 'Rotación externa', u: '°', id: 're', contra: 're_contra' },
+    { t: 'Fuerza · abductores', u: 'kg', id: 'abductores_mejor', contra: 'abductores_contra' },
+    { t: 'Fuerza · flexores', u: 'kg', id: 'flexores_mejor', contra: 'flexores_contra' },
+    { t: 'Fuerza · extensores', u: 'kg', id: 'extensores_mejor', contra: 'extensores_contra' },
+    { t: 'LSI abductores', u: '%', id: 'abductores_lsi', obj: 90 },
+    { t: 'LSI flexores', u: '%', id: 'flexores_lsi', obj: 90 },
+    { t: 'LSI extensores', u: '%', id: 'extensores_lsi', obj: 90 },
+    { t: 'Timed Up and Go', u: 'seg', id: 'tug_mejor', menor: true }
+  ],
+  codo: [
+    { t: 'Flexión activa', u: '°', id: 'flex_act', contra: 'flex_contra' },
+    { t: 'Déficit de extensión activa', u: '°', id: 'ext_act' },
+    { t: 'Pronación', u: '°', id: 'pron', contra: 'pron_contra' },
+    { t: 'Supinación', u: '°', id: 'sup', contra: 'sup_contra' },
+    { t: 'Fuerza · flexión (bíceps)', u: 'kg', id: 'biceps_mejor', contra: 'biceps_contra' },
+    { t: 'Fuerza · extensión (tríceps)', u: 'kg', id: 'triceps_mejor', contra: 'triceps_contra' },
+    { t: 'LSI flexión de codo', u: '%', id: 'biceps_lsi', obj: 90 },
+    { t: 'LSI extensión de codo', u: '%', id: 'triceps_lsi', obj: 90 }
+  ],
+  muneca: [
+    { t: 'Flexión activa', u: '°', id: 'flex_act', contra: 'flex_contra' },
+    { t: 'Extensión activa', u: '°', id: 'ext_act', contra: 'ext_contra' },
+    { t: 'Desviación radial', u: '°', id: 'desv_rad', contra: 'desv_rad_contra' },
+    { t: 'Desviación cubital', u: '°', id: 'desv_cub', contra: 'desv_cub_contra' },
+    { t: 'Fuerza · prensión (grip)', u: 'kg', id: 'prension_mejor', contra: 'prension_contra' },
+    { t: 'LSI prensión', u: '%', id: 'prension_lsi', obj: 90 },
+    { t: 'Pinza lateral', u: 'kg', id: 'pinza', contra: 'pinza_contra' },
+    { t: 'LSI pinza', u: '%', id: 'pinza_lsi', obj: 90 }
   ]
 };
 
@@ -88,9 +134,12 @@ function lsiPrincipalId(pl) {
   return a ? a.id : null;
 }
 function romPrincipal(pl) {
-  return pl.region === 'hombro'
-    ? { id: 'elev_act', contra: 'elev_contra', label: 'Elevación activa (°)', corto: 'Elevación anterior activa' }
-    : { id: 'flex_act', contra: 'flex_contra', label: 'Flexión activa (°)', corto: 'Flexión activa de rodilla' };
+  if (pl.region === 'hombro')
+    return { id: 'elev_act', contra: 'elev_contra', label: 'Elevación activa (°)', corto: 'Elevación anterior activa' };
+  if (pl.region === 'tobillo')
+    return { id: 'df_act', contra: 'df_contra', label: 'Dorsiflexión activa (°)', corto: 'Dorsiflexión activa' };
+  const zona = { cadera: 'cadera', codo: 'codo', muneca: 'muñeca' }[pl.region] || 'rodilla';
+  return { id: 'flex_act', contra: 'flex_contra', label: 'Flexión activa (°)', corto: 'Flexión activa de ' + zona };
 }
 
 function _etiquetaPunto(episodio, fecha) {
@@ -121,7 +170,7 @@ function seriesResumen(episodio, evalsOrdenadas, escalas) {
   const idLsi = lsiPrincipalId(pl);
   const sLsi = idLsi ? _serieDeCampo(episodio, evalsOrdenadas, pl, idLsi) : [];
   if (sLsi.length) {
-    cfgs.push({ kicker: (pl.region === 'hombro' ? 'LSI abducción (%)' : 'LSI cuádriceps (%)'),
+    cfgs.push({ kicker: (pl.lsiCorto || (pl.region === 'hombro' ? 'LSI abducción' : 'LSI cuádriceps')) + ' (%)',
       unidad: '%', objetivo: 90, series: [{ puntos: sLsi }] });
   }
 

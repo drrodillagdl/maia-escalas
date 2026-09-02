@@ -426,6 +426,10 @@ const ESCALAS_SUGERIDAS = {
   ptr: ['koosjr', 'eva', 'sane'],
   lca: ['ikdc', 'lysholm', 'tegner', 'eva', 'sane'],
   artro: ['lysholm', 'ikdc', 'koosjr', 'tegner', 'eva', 'sane'],
+  tobillo: ['eva', 'sane'],
+  cadera: ['eva', 'sane'],
+  codo: ['quickdash', 'dash', 'eva', 'sane'],
+  muneca: ['quickdash', 'dash', 'eva', 'sane'],
   otro: ['eva', 'sane']
 };
 

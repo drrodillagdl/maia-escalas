@@ -541,6 +541,352 @@ const PLANTILLAS = {
         'Registrar cada intento en kilogramos, el mejor valor y el mejor valor contralateral.'
       ])
     ]
+  },
+
+  /* ================= TOBILLO Y PIE ================= */
+  tobillo: {
+    id: 'tobillo',
+    nombre: 'Tobillo y pie',
+    tag: 'TOBILLO', kicker: 'Tobillo · Postoperatorio',
+    lsiCorto: 'LSI dorsiflexores',
+    desc: 'Goniometría de dorsiflexión, flexión plantar, inversión y eversión; dorsiflexión en carga (lunge), perimetría en figura de 8, dinamometría de dorsiflexores y elevaciones de talón.',
+    titulo: 'TOBILLO Y PIE — EVALUACIÓN POSTOPERATORIA GENERAL',
+    region: 'tobillo',
+    lados: ['Derecha', 'Izquierda'],
+    secciones: [
+      {
+        id: 'gonio_dfp', titulo: 'Goniometría — dorsiflexión y flexión plantar',
+        instrucciones: [
+          'Paciente sentado al borde de la mesa con la rodilla flexionada a 90°, o en decúbito supino con la rodilla sobre un rollo; tobillo en posición neutra.',
+          'Centrar el eje del goniómetro sobre el maléolo lateral; brazo fijo sobre el eje del peroné hacia la cabeza peronea y brazo móvil paralelo al 5.º metatarsiano.',
+          'Comando: «suba el pie hacia usted lo más que pueda» (dorsiflexión) y «empuje el pie hacia abajo, como pisar el acelerador» (flexión plantar); registrar el máximo activo y después el pasivo llevado por el explorador.',
+          'Registrar en grados (déficit de dorsiflexión con valor negativo) y repetir en el tobillo contralateral.'
+        ],
+        campos: [
+          { id: 'df_act', et: 'Dorsiflexión activa', tipo: 'num', unidad: '°', min: -30, max: 40, neg: true },
+          { id: 'df_pas', et: 'Dorsiflexión pasiva', tipo: 'num', unidad: '°', min: -30, max: 40, neg: true },
+          { id: 'df_contra', et: 'Dorsiflexión contralateral', tipo: 'num', unidad: '°', min: -30, max: 40, neg: true },
+          { id: 'fp_act', et: 'Flexión plantar activa', tipo: 'num', unidad: '°', min: 0, max: 80 },
+          { id: 'fp_pas', et: 'Flexión plantar pasiva', tipo: 'num', unidad: '°', min: 0, max: 80 },
+          { id: 'fp_contra', et: 'Flexión plantar contralateral', tipo: 'num', unidad: '°', min: 0, max: 80 }
+        ],
+        autos: [
+          { id: 'df_pct', et: 'Dorsiflexión activa vs contralateral', tipo: 'lsi', de: ['df_act', 'df_contra'], unidad: '%' }
+        ]
+      },
+      {
+        id: 'gonio_inv', titulo: 'Goniometría — inversión y eversión',
+        instrucciones: [
+          'Paciente sentado al borde de la mesa con la pierna colgando y el tobillo libre.',
+          'Centrar el eje del goniómetro sobre la cara anterior del tobillo, a medio camino entre los maléolos; brazo fijo sobre la cresta tibial y brazo móvil sobre el eje del 2.º metatarsiano.',
+          'Comando: «gire la planta del pie hacia adentro» (inversión) y «gire la planta hacia afuera» (eversión); registrar el máximo activo.',
+          'Registrar en grados y repetir en el tobillo contralateral.'
+        ],
+        campos: [
+          { id: 'inv', et: 'Inversión', tipo: 'num', unidad: '°', min: 0, max: 60 },
+          { id: 'inv_contra', et: 'Inversión contralateral', tipo: 'num', unidad: '°', min: 0, max: 60 },
+          { id: 'ev', et: 'Eversión', tipo: 'num', unidad: '°', min: 0, max: 40 },
+          { id: 'ev_contra', et: 'Eversión contralateral', tipo: 'num', unidad: '°', min: 0, max: 40 }
+        ]
+      },
+      {
+        id: 'lunge', titulo: 'Dorsiflexión en carga — lunge test',
+        instrucciones: [
+          'Paciente de pie frente a una pared, con el pie a explorar adelantado y perpendicular a ella; llevar la rodilla a tocar la pared sin despegar el talón del suelo.',
+          'Alejar progresivamente el pie de la pared hasta la máxima distancia en la que la rodilla todavía toca la pared con el talón apoyado.',
+          'Medir con cinta métrica la distancia del primer dedo a la pared; registrar en centímetros y repetir con el lado contralateral.'
+        ],
+        campos: [
+          { id: 'lunge', et: 'Distancia dedo-pared — operado', tipo: 'num', unidad: 'cm', min: 0, max: 30, paso: 0.1 },
+          { id: 'lunge_contra', et: 'Distancia — contralateral', tipo: 'num', unidad: 'cm', min: 0, max: 30, paso: 0.1 }
+        ],
+        autos: [
+          { id: 'lunge_dif', et: 'Diferencia vs contralateral', tipo: 'dif', de: ['lunge', 'lunge_contra'], unidad: 'cm',
+            nota: 'Una diferencia mayor de 2 cm respecto al contralateral se considera clínicamente relevante.' }
+        ]
+      },
+      {
+        id: 'peri_ocho', titulo: 'Perimetría — figura en 8',
+        instrucciones: [
+          'Paciente en decúbito supino o sentado con el tobillo en posición neutra.',
+          'Iniciar la cinta a medio camino entre el tendón tibial anterior y el maléolo lateral; pasar por debajo del arco hacia la tuberosidad del navicular, cruzar el dorso hacia la base del 5.º metatarsiano y rodear el tobillo por debajo de ambos maléolos hasta cerrar la figura en 8.',
+          'Registrar en centímetros, ajustando la cinta sin comprimir, y repetir en el tobillo contralateral.'
+        ],
+        campos: [
+          { id: 'ocho', et: 'Figura en 8 — operado', tipo: 'num', unidad: 'cm', min: 30, max: 80, paso: 0.1 },
+          { id: 'ocho_contra', et: 'Figura en 8 — contralateral', tipo: 'num', unidad: 'cm', min: 30, max: 80, paso: 0.1 }
+        ],
+        autos: [
+          { id: 'ocho_dif', et: 'Diferencia vs contralateral', tipo: 'dif', de: ['ocho', 'ocho_contra'], unidad: 'cm',
+            nota: 'Una diferencia positiva indica edema del lado operado.' }
+        ]
+      },
+      _dinamo('dorsiflexores', 'Dinamometría de dorsiflexores', [
+        'Paciente sentado o en decúbito supino con el tobillo en posición neutra.',
+        'Colocar el dinamómetro manual sobre el dorso del pie, a nivel de las cabezas de los metatarsianos; el explorador resiste sin ceder (make test isométrico).',
+        'Comando: «suba el pie contra mi mano con toda su fuerza». Contracción máxima de 5 segundos, 3 intentos, con 30 segundos de descanso.',
+        'Registrar cada intento en kilogramos, el mejor valor y el mejor valor contralateral.'
+      ]),
+      {
+        id: 'talones', titulo: 'Elevaciones de talón monopodales (flexores plantares)',
+        instrucciones: [
+          'Paciente de pie sobre la pierna a explorar, rodilla extendida, con 1-2 dedos apoyados en la pared únicamente para el equilibrio.',
+          'Comando: «póngase de puntas lo más alto que pueda y baje», a ritmo constante de una elevación cada 2 segundos.',
+          'Contar las repeticiones completas hasta que pierda altura, flexione la rodilla, se apoye o se detenga; repetir con la pierna contralateral (referencia en adultos sanos: ~25 repeticiones).'
+        ],
+        campos: [
+          { id: 'talon_rep', et: 'Repeticiones — operado', tipo: 'num', unidad: 'rep', min: 0, max: 60 },
+          { id: 'talon_contra', et: 'Repeticiones — contralateral', tipo: 'num', unidad: 'rep', min: 0, max: 60 }
+        ],
+        autos: [
+          { id: 'talon_lsi', et: 'Índice de simetría (LSI)', tipo: 'lsi', de: ['talon_rep', 'talon_contra'], unidad: '%',
+            nota: 'Criterio habitual de simetría: ≥ 90 % del lado sano.' }
+        ]
+      }
+    ]
+  },
+
+  /* ================= CADERA ================= */
+  cadera: {
+    id: 'cadera',
+    nombre: 'Cadera',
+    tag: 'CADERA', kicker: 'Cadera · Postoperatorio',
+    lsiCorto: 'LSI abductores',
+    desc: 'Goniometría completa de cadera (flexo-extensión, abducción-aducción y rotaciones), Trendelenburg, dinamometría de abductores, flexores y extensores, y Timed Up and Go.',
+    titulo: 'CADERA — EVALUACIÓN POSTOPERATORIA GENERAL',
+    region: 'cadera',
+    lados: ['Derecha', 'Izquierda'],
+    secciones: [
+      {
+        id: 'gonio_fe', titulo: 'Goniometría — flexión y extensión',
+        instrucciones: [
+          'Flexión: paciente en decúbito supino; centrar el eje del goniómetro sobre el trocánter mayor, brazo fijo sobre la línea media lateral del tronco y brazo móvil sobre el fémur hacia el epicóndilo lateral.',
+          'Comando: «lleve la rodilla hacia el pecho» con la rodilla flexionada, evitando la báscula de la pelvis; registrar el máximo activo y el pasivo tolerado.',
+          'Extensión: paciente en decúbito prono con la pelvis estabilizada; misma colocación del goniómetro. Comando: «despegue el muslo de la mesa con la rodilla estirada».',
+          'Registrar en grados y repetir en la cadera contralateral.'
+        ],
+        campos: [
+          { id: 'flex_act', et: 'Flexión activa', tipo: 'num', unidad: '°', min: 0, max: 140 },
+          { id: 'flex_pas', et: 'Flexión pasiva', tipo: 'num', unidad: '°', min: 0, max: 140 },
+          { id: 'flex_contra', et: 'Flexión contralateral', tipo: 'num', unidad: '°', min: 0, max: 140 },
+          { id: 'ext_act', et: 'Extensión activa', tipo: 'num', unidad: '°', min: 0, max: 40 },
+          { id: 'ext_contra', et: 'Extensión contralateral', tipo: 'num', unidad: '°', min: 0, max: 40 }
+        ],
+        autos: [
+          { id: 'flex_pct', et: 'Flexión activa vs contralateral', tipo: 'lsi', de: ['flex_act', 'flex_contra'], unidad: '%' }
+        ]
+      },
+      {
+        id: 'gonio_abd', titulo: 'Goniometría — abducción y aducción',
+        instrucciones: [
+          'Paciente en decúbito supino con ambas extremidades extendidas.',
+          'Centrar el eje del goniómetro sobre la espina iliaca anterosuperior (EIAS) del lado explorado; brazo fijo dirigido a la EIAS contralateral y brazo móvil sobre el fémur hacia el centro de la rótula (la posición neutra marca 90°: restarlos al registrar).',
+          'Comando: «separe la pierna hacia afuera deslizándola por la mesa» (abducción) y «crúcela hacia la otra pierna» (aducción, con la contralateral ligeramente elevada).',
+          'Registrar en grados y repetir en la cadera contralateral.'
+        ],
+        campos: [
+          { id: 'abd', et: 'Abducción', tipo: 'num', unidad: '°', min: 0, max: 60 },
+          { id: 'abd_contra', et: 'Abducción contralateral', tipo: 'num', unidad: '°', min: 0, max: 60 },
+          { id: 'ad', et: 'Aducción', tipo: 'num', unidad: '°', min: 0, max: 40 },
+          { id: 'ad_contra', et: 'Aducción contralateral', tipo: 'num', unidad: '°', min: 0, max: 40 }
+        ]
+      },
+      {
+        id: 'gonio_rot', titulo: 'Goniometría — rotaciones',
+        instrucciones: [
+          'Paciente sentado al borde de la mesa, cadera y rodilla a 90°, con una toalla bajo el muslo distal.',
+          'Centrar el eje del goniómetro sobre el centro de la rótula; brazo fijo vertical (perpendicular al suelo) y brazo móvil sobre la cresta tibial hacia el punto medio entre los maléolos.',
+          'Comando: «lleve el pie hacia afuera» (rotación INTERNA de la cadera) y «lleve el pie hacia adentro cruzando» (rotación EXTERNA); evitar que se levante la pelvis.',
+          'Registrar en grados cada rotación y repetir en la cadera contralateral.'
+        ],
+        campos: [
+          { id: 'ri', et: 'Rotación interna', tipo: 'num', unidad: '°', min: 0, max: 60 },
+          { id: 'ri_contra', et: 'RI contralateral', tipo: 'num', unidad: '°', min: 0, max: 60 },
+          { id: 're', et: 'Rotación externa', tipo: 'num', unidad: '°', min: 0, max: 60 },
+          { id: 're_contra', et: 'RE contralateral', tipo: 'num', unidad: '°', min: 0, max: 60 }
+        ]
+      },
+      {
+        id: 'trendelenburg', titulo: 'Prueba de Trendelenburg',
+        instrucciones: [
+          'Paciente de pie; el explorador observa la pelvis por detrás.',
+          'Pedir apoyo monopodal sobre el lado a explorar, flexionando la rodilla contraria, y sostenerlo hasta 30 segundos.',
+          'Negativa: la pelvis contralateral se mantiene o asciende. Positiva: la pelvis contralateral cae. Descompensada: el tronco se inclina hacia el lado de apoyo para compensar.'
+        ],
+        campos: [
+          { id: 'trend', et: 'Resultado', tipo: 'ops', ops: [
+            { v: 'negativa', et: 'Negativa' }, { v: 'positiva', et: 'Positiva' },
+            { v: 'descompensada', et: 'Descompensada (inclina el tronco)' } ] }
+        ]
+      },
+      _dinamo('abductores', 'Dinamometría de abductores de cadera', [
+        'Paciente en decúbito lateral sobre el lado sano, cadera y rodilla en extensión, pelvis estabilizada por el explorador.',
+        'Colocar el dinamómetro en la cara lateral del muslo, 5 cm proximal al epicóndilo femoral lateral; resistir sin ceder.',
+        'Comando: «suba la pierna contra mi mano con toda su fuerza». Contracción máxima de 5 segundos, 3 intentos, 30 segundos de descanso.',
+        'Registrar cada intento en kilogramos, el mejor valor y el mejor valor contralateral.'
+      ]),
+      _dinamo('flexores', 'Dinamometría de flexores de cadera', [
+        'Paciente sentado al borde de la mesa, cadera y rodilla a 90°, manos apoyadas en la mesa.',
+        'Colocar el dinamómetro sobre la cara anterior del muslo, 5 cm proximal a la rótula; el explorador resiste hacia abajo sin ceder.',
+        'Comando: «suba la rodilla contra mi mano con toda su fuerza». Contracción máxima de 5 segundos, 3 intentos, 30 segundos de descanso.',
+        'Registrar cada intento en kilogramos, el mejor valor y el mejor valor contralateral.'
+      ]),
+      _dinamo('extensores', 'Dinamometría de extensores de cadera', [
+        'Paciente en decúbito prono con la rodilla flexionada a 90°; el explorador estabiliza la pelvis.',
+        'Colocar el dinamómetro sobre la cara posterior del muslo, 5 cm proximal al pliegue poplíteo; resistir sin ceder.',
+        'Comando: «despegue el muslo de la mesa contra mi mano con toda su fuerza». Contracción máxima de 5 segundos, 3 intentos, 30 segundos de descanso.',
+        'Registrar cada intento en kilogramos, el mejor valor y el mejor valor contralateral.'
+      ]),
+      {
+        id: 'tug', titulo: 'Timed Up and Go (TUG)', tipoSeccion: 'cronometro',
+        instrucciones: [
+          'Silla con descansabrazos (asiento a ~46 cm); marcar una línea a 3 metros del borde anterior de la silla.',
+          'Paciente sentado con la espalda apoyada; puede usar su auxiliar de marcha habitual (registrarlo en el espacio correspondiente).',
+          'Comando: «cuando diga ya, levántese, camine a paso normal hasta la línea, dé la vuelta, regrese y siéntese». Iniciar el cronómetro al decir «ya» y detenerlo cuando la espalda toque el respaldo.',
+          'Realizar 1 intento de práctica sin cronometrar y 2 intentos cronometrados con 1 minuto de descanso; registrar ambos tiempos en segundos y el mejor.'
+        ],
+        campos: [
+          { id: 'tug_1', et: 'Tiempo 1', tipo: 'num', unidad: 'seg', min: 0, max: 300, paso: 0.1, crono: true },
+          { id: 'tug_2', et: 'Tiempo 2', tipo: 'num', unidad: 'seg', min: 0, max: 300, paso: 0.1, crono: true },
+          { id: 'tug_aux', et: 'Auxiliar de marcha', tipo: 'ops', ops: [
+            { v: 'ninguno', et: 'Ninguno' }, { v: 'baston', et: 'Bastón' },
+            { v: 'andadera', et: 'Andadera' }, { v: 'muletas', et: 'Muletas' } ] }
+        ],
+        autos: [
+          { id: 'tug_mejor', et: 'Mejor tiempo', tipo: 'min', de: ['tug_1', 'tug_2'], unidad: 'seg',
+            nota: 'En adultos mayores, ≥ 13.5 seg se asocia a mayor riesgo de caídas.' }
+        ]
+      }
+    ]
+  },
+
+  /* ================= CODO ================= */
+  codo: {
+    id: 'codo',
+    nombre: 'Codo',
+    tag: 'CODO', kicker: 'Codo · Postoperatorio',
+    lsiCorto: 'LSI flexión de codo',
+    desc: 'Goniometría de flexo-extensión y pronosupinación; dinamometría de flexión (bíceps) y extensión (tríceps) de codo.',
+    titulo: 'CODO — EVALUACIÓN POSTOPERATORIA GENERAL',
+    region: 'codo',
+    lados: ['Derecha', 'Izquierda'],
+    secciones: [
+      {
+        id: 'gonio_fe', titulo: 'Goniometría — flexión y extensión',
+        instrucciones: [
+          'Paciente sentado o en decúbito supino, brazo pegado al tronco y antebrazo en supinación.',
+          'Centrar el eje del goniómetro sobre el epicóndilo lateral; brazo fijo sobre el húmero hacia el acromion y brazo móvil sobre el radio hacia la apófisis estiloides radial.',
+          'Comando: «doble el codo lo más que pueda» (activa) y después llevarlo el explorador al máximo tolerado (pasiva). Extensión: «estire el codo por completo»; registrar déficit con valor positivo e hiperextensión con valor negativo.',
+          'Registrar en grados y repetir en el codo contralateral.'
+        ],
+        campos: [
+          { id: 'flex_act', et: 'Flexión activa', tipo: 'num', unidad: '°', min: 0, max: 160 },
+          { id: 'flex_pas', et: 'Flexión pasiva', tipo: 'num', unidad: '°', min: 0, max: 160 },
+          { id: 'flex_contra', et: 'Flexión contralateral', tipo: 'num', unidad: '°', min: 0, max: 160 },
+          { id: 'ext_act', et: 'Extensión activa (déficit)', tipo: 'num', unidad: '°', min: -15, max: 60, neg: true },
+          { id: 'ext_pas', et: 'Extensión pasiva (déficit)', tipo: 'num', unidad: '°', min: -15, max: 60, neg: true },
+          { id: 'ext_contra', et: 'Extensión contralateral', tipo: 'num', unidad: '°', min: -15, max: 60, neg: true }
+        ],
+        autos: [
+          { id: 'flex_pct', et: 'Flexión activa vs contralateral', tipo: 'lsi', de: ['flex_act', 'flex_contra'], unidad: '%' }
+        ]
+      },
+      {
+        id: 'gonio_ps', titulo: 'Goniometría — pronación y supinación',
+        instrucciones: [
+          'Paciente sentado, brazo pegado al tronco, codo flexionado a 90° y muñeca neutra (puede sostener un lápiz en el puño como referencia visual).',
+          'Centrar el eje del goniómetro lateral a la apófisis estiloides cubital; brazo fijo paralelo al eje del húmero y brazo móvil sobre la cara dorsal de la muñeca (pronación) o la cara ventral (supinación), proximal a la estiloides.',
+          'Comando: «gire la palma hacia abajo» (pronación) y «gire la palma hacia arriba» (supinación), sin despegar el codo del tronco.',
+          'Registrar en grados y repetir en el lado contralateral.'
+        ],
+        campos: [
+          { id: 'pron', et: 'Pronación', tipo: 'num', unidad: '°', min: 0, max: 100 },
+          { id: 'pron_contra', et: 'Pronación contralateral', tipo: 'num', unidad: '°', min: 0, max: 100 },
+          { id: 'sup', et: 'Supinación', tipo: 'num', unidad: '°', min: 0, max: 100 },
+          { id: 'sup_contra', et: 'Supinación contralateral', tipo: 'num', unidad: '°', min: 0, max: 100 }
+        ]
+      },
+      _dinamo('biceps', 'Dinamometría — flexión de codo (bíceps)', [
+        'Paciente sentado, brazo pegado al tronco, codo flexionado a 90° con el antebrazo en supinación completa.',
+        'Colocar el dinamómetro sobre la cara anterior del antebrazo, inmediatamente proximal a la muñeca; el explorador resiste sin ceder.',
+        'Comando: «doble el codo contra mi mano con toda su fuerza». Contracción máxima de 5 segundos, 3 intentos, 30 segundos de descanso.',
+        'Registrar cada intento en kilogramos, el mejor valor y el mejor valor contralateral.'
+      ]),
+      _dinamo('triceps', 'Dinamometría — extensión de codo (tríceps)', [
+        'Paciente en decúbito supino con el hombro flexionado a 90° y el codo a 90°, o sentado con el brazo apoyado.',
+        'Colocar el dinamómetro sobre la cara dorsal del antebrazo, inmediatamente proximal a la muñeca; el explorador resiste sin ceder.',
+        'Comando: «estire el codo contra mi mano con toda su fuerza». Contracción máxima de 5 segundos, 3 intentos, 30 segundos de descanso.',
+        'Registrar cada intento en kilogramos, el mejor valor y el mejor valor contralateral.'
+      ])
+    ]
+  },
+
+  /* ================= MUÑECA Y MANO ================= */
+  muneca: {
+    id: 'muneca',
+    nombre: 'Muñeca y mano',
+    tag: 'MUÑECA', kicker: 'Muñeca · Postoperatorio',
+    lsiCorto: 'LSI prensión',
+    desc: 'Goniometría de flexo-extensión y desviaciones de la muñeca; dinamometría de prensión (grip) y de pinza.',
+    titulo: 'MUÑECA Y MANO — EVALUACIÓN POSTOPERATORIA GENERAL',
+    region: 'muneca',
+    lados: ['Derecha', 'Izquierda'],
+    secciones: [
+      {
+        id: 'gonio_fe', titulo: 'Goniometría — flexión y extensión',
+        instrucciones: [
+          'Paciente sentado, antebrazo pronado apoyado en la mesa con la muñeca libre en el borde.',
+          'Centrar el eje del goniómetro sobre el dorso del carpo, a nivel del hueso grande; brazo fijo sobre la línea media dorsal del antebrazo y brazo móvil sobre el 3.er metacarpiano.',
+          'Comando: «doble la muñeca hacia abajo lo más que pueda» (flexión) y «suba la mano hacia arriba» (extensión), con los dedos relajados.',
+          'Registrar en grados y repetir en la muñeca contralateral.'
+        ],
+        campos: [
+          { id: 'flex_act', et: 'Flexión activa', tipo: 'num', unidad: '°', min: 0, max: 100 },
+          { id: 'flex_contra', et: 'Flexión contralateral', tipo: 'num', unidad: '°', min: 0, max: 100 },
+          { id: 'ext_act', et: 'Extensión activa', tipo: 'num', unidad: '°', min: 0, max: 90 },
+          { id: 'ext_contra', et: 'Extensión contralateral', tipo: 'num', unidad: '°', min: 0, max: 90 }
+        ],
+        autos: [
+          { id: 'flex_pct', et: 'Flexión activa vs contralateral', tipo: 'lsi', de: ['flex_act', 'flex_contra'], unidad: '%' }
+        ]
+      },
+      {
+        id: 'gonio_desv', titulo: 'Goniometría — desviaciones radial y cubital',
+        instrucciones: [
+          'Paciente sentado, antebrazo pronado apoyado en la mesa, muñeca en posición neutra.',
+          'Centrar el eje del goniómetro sobre el dorso del carpo a nivel del hueso grande; brazo fijo sobre la línea media dorsal del antebrazo y brazo móvil sobre el 3.er metacarpiano.',
+          'Comando: «lleve la mano hacia el lado del pulgar» (desviación radial) y «hacia el lado del meñique» (desviación cubital), sin girar el antebrazo.',
+          'Registrar en grados y repetir en la muñeca contralateral.'
+        ],
+        campos: [
+          { id: 'desv_rad', et: 'Desviación radial', tipo: 'num', unidad: '°', min: 0, max: 40 },
+          { id: 'desv_rad_contra', et: 'Radial contralateral', tipo: 'num', unidad: '°', min: 0, max: 40 },
+          { id: 'desv_cub', et: 'Desviación cubital', tipo: 'num', unidad: '°', min: 0, max: 60 },
+          { id: 'desv_cub_contra', et: 'Cubital contralateral', tipo: 'num', unidad: '°', min: 0, max: 60 }
+        ]
+      },
+      _dinamo('prension', 'Dinamometría de prensión (grip)', [
+        'Paciente sentado, hombro pegado al tronco, codo flexionado a 90° sin apoyar, antebrazo y muñeca en posición neutra (posición estándar).',
+        'Entregar el dinamómetro de prensión (en Jamar, mango en la posición II); el explorador sostiene ligeramente la base sin ayudar.',
+        'Comando: «apriete lo más fuerte que pueda». Contracción máxima de 5 segundos, 3 intentos, con 30 segundos de descanso entre cada uno.',
+        'Registrar cada intento en kilogramos, el mejor valor y el mejor valor contralateral (la mano dominante suele ser ~10 % más fuerte).'
+      ]),
+      {
+        id: 'pinza', titulo: 'Dinamometría de pinza lateral (llave)',
+        instrucciones: [
+          'Paciente en la misma posición estándar; dinamómetro de pinza entre el pulpejo del pulgar y la cara lateral del dedo índice.',
+          'Comando: «apriete como si girara una llave, lo más fuerte que pueda». Registrar el mejor de 3 intentos por lado.'
+        ],
+        campos: [
+          { id: 'pinza', et: 'Pinza — mejor de 3', tipo: 'num', unidad: 'kg', min: 0, max: 40, paso: 0.1 },
+          { id: 'pinza_contra', et: 'Pinza — contralateral', tipo: 'num', unidad: 'kg', min: 0, max: 40, paso: 0.1 }
+        ],
+        autos: [
+          { id: 'pinza_lsi', et: 'Índice de simetría (LSI)', tipo: 'lsi', de: ['pinza', 'pinza_contra'], unidad: '%',
+            nota: 'Criterio habitual de simetría: ≥ 90 % del lado sano.' }
+        ]
+      }
+    ]
   }
 };
 

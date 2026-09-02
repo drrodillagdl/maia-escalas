@@ -4,7 +4,7 @@
    Preparada para conectarse a COREGDL: cada paciente admite un "ID en COREGDL"
    y la exportación produce el JSON de intercambio.                            */
 
-const VERSION_APP = '0.2.1';
+const VERSION_APP = '0.2.2';
 
 /* ---------------- utilidades ---------------- */
 function hoyISO() {
@@ -83,9 +83,13 @@ function dxEpisodio(e) {
   if (!pl) return e.titulo || 'Tratamiento';
   let lado = '';
   if (e.lado) {
-    lado = pl.region === 'hombro'
-      ? ' · hombro ' + (e.lado === 'Derecha' ? 'derecho' : 'izquierdo')
-      : ' · rodilla ' + e.lado.toLowerCase();
+    const zona = {
+      hombro: ['hombro', 'o'], rodilla: ['rodilla', 'a'], tobillo: ['tobillo', 'o'],
+      cadera: ['cadera', 'a'], codo: ['codo', 'o'], muneca: ['muñeca', 'a']
+    }[pl.region] || ['rodilla', 'a'];
+    const genero = zona[1] === 'o'
+      ? (e.lado === 'Derecha' ? 'derecho' : 'izquierdo') : e.lado.toLowerCase();
+    lado = ' · ' + zona[0] + ' ' + genero;
   }
   return pl.nombre + lado;
 }
