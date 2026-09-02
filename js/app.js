@@ -4,7 +4,7 @@
    Preparada para conectarse a COREGDL: cada paciente admite un "ID en COREGDL"
    y la exportación produce el JSON de intercambio.                            */
 
-const VERSION_APP = '0.2.2';
+const VERSION_APP = '0.3.0';
 
 /* ---------------- utilidades ---------------- */
 function hoyISO() {
@@ -605,6 +605,31 @@ async function vistaAjustes(cont) {
     '<button class="btn btn-secondary btn-block" id="btnImportar">Restaurar / importar respaldo</button>' +
     '<input type="file" id="archivoImportar" accept=".json,application/json" class="oculto">' +
     '</div>' +
+    '<h5 style="margin:22px 0 10px">Seguridad</h5>' +
+    '<div class="card" style="gap:10px">' +
+    (CANDADO.configurado()
+      ? '<div style="font-size:14px">Candado activo · usuario: <b>' + escaparHTML(CANDADO.usuario()) + '</b></div>' +
+        '<p class="text-muted" style="margin:0;font-size:13.5px;line-height:1.55">' +
+        'Los datos de este dispositivo están cifrados y la app pide la contraseña al abrirse. ' +
+        'El respaldo JSON se exporta descifrado: guárdelo en un lugar seguro.</p>' +
+        '<button class="btn btn-primary btn-block btn-grande" id="btnBloquear">Bloquear ahora</button>' +
+        '<button class="btn btn-secondary btn-block" id="btnCambiarPass">Cambiar contraseña</button>' +
+        '<button class="btn btn-peligro btn-block" id="btnQuitarCandado">Quitar el candado (descifrar los datos)</button>' +
+        '<div id="segExtra"></div>'
+      : '<p class="text-muted" style="margin:0;font-size:13.5px;line-height:1.55">' +
+        'Active el candado para proteger los pacientes de este dispositivo: la app pedirá ' +
+        'contraseña al abrirse y los datos quedarán CIFRADOS (ilegibles sin ella). ' +
+        '<b>Si olvida la contraseña no hay forma de recuperarlos</b>; su respaldo JSON es la única salvación.</p>' +
+        '<div class="field"><label>Usuario (se muestra en la pantalla de entrada)</label>' +
+        '<input class="input" type="text" id="segUsuario" style="min-height:48px" value="' + escaparHTML(evaluador) + '" placeholder="Dr. …"></div>' +
+        '<div class="dos-col">' +
+        '<div class="field"><label>Contraseña (mínimo 6)</label>' +
+        '<input class="input" type="password" id="segPass1" autocomplete="new-password" style="min-height:48px"></div>' +
+        '<div class="field"><label>Confirmar contraseña</label>' +
+        '<input class="input" type="password" id="segPass2" autocomplete="new-password" style="min-height:48px"></div>' +
+        '</div>' +
+        '<button class="btn btn-primary btn-block btn-grande" id="btnActivarCandado">Activar candado y cifrar</button>') +
+    '</div>' +
     '<h5 style="margin:22px 0 10px">Acerca de</h5>' +
     '<div class="card text-muted" style="font-size:13.5px;line-height:1.6">' +
     '<div><b style="color:var(--color-text)">CORE Scale ' + VERSION_APP + '</b></div>' +
@@ -641,6 +666,69 @@ async function vistaAjustes(cont) {
       alert('No se pudo importar: ' + err.message);
     }
   });
+
+  /* ---- Seguridad ---- */
+  const activar = cont.querySelector('#btnActivarCandado');
+  if (activar) activar.addEventListener('click', async () => {
+    const u = cont.querySelector('#segUsuario').value.trim();
+    const p1 = cont.querySelector('#segPass1').value;
+    const p2 = cont.querySelector('#segPass2').value;
+    if (!u) { alert('Escriba el nombre de usuario.'); return; }
+    if (p1.length < 6) { alert('La contraseña debe tener al menos 6 caracteres.'); return; }
+    if (p1 !== p2) { alert('Las contraseñas no coinciden.'); return; }
+    if (!confirm('IMPORTANTE: si olvida esta contraseña, los datos de este dispositivo NO se podrán recuperar.\n\n' +
+      'Recomendación: descargue un respaldo JSON ahora y guárdelo en iCloud.\n\n¿Activar el candado y cifrar los datos?')) return;
+    activar.disabled = true; activar.textContent = 'Cifrando…';
+    try {
+      await CANDADO.activar(u, p1);
+      alert('Candado activo. La app pedirá la contraseña la próxima vez que se abra.');
+      render();
+    } catch (err) {
+      alert('No se pudo activar: ' + err.message);
+      activar.disabled = false; activar.textContent = 'Activar candado y cifrar';
+    }
+  });
+
+  const bloquear = cont.querySelector('#btnBloquear');
+  if (bloquear) bloquear.addEventListener('click', () => {
+    CANDADO.bloquear();
+    location.reload();
+  });
+
+  /* mini-formulario inline para cambiar contraseña o quitar el candado */
+  const extra = cont.querySelector('#segExtra');
+  const miniForm = (html, alEnviar) => {
+    extra.innerHTML = '<div class="card" style="background:var(--color-bg);border:1px solid var(--color-divider);gap:10px;margin-top:4px">' +
+      html + '<div style="display:flex;gap:8px">' +
+      '<button class="btn btn-primary" id="miniOk">Confirmar</button>' +
+      '<button class="btn btn-secondary" id="miniNo">Cancelar</button></div></div>';
+    extra.querySelector('#miniNo').addEventListener('click', () => extra.innerHTML = '');
+    extra.querySelector('#miniOk').addEventListener('click', alEnviar);
+  };
+
+  const cambiar = cont.querySelector('#btnCambiarPass');
+  if (cambiar) cambiar.addEventListener('click', () => miniForm(
+    '<div class="field"><label>Contraseña actual</label><input class="input" type="password" id="mActual" style="min-height:46px"></div>' +
+    '<div class="field"><label>Contraseña nueva (mínimo 6)</label><input class="input" type="password" id="mNueva" style="min-height:46px"></div>' +
+    '<div class="field"><label>Confirmar la nueva</label><input class="input" type="password" id="mNueva2" style="min-height:46px"></div>',
+    async () => {
+      const a = extra.querySelector('#mActual').value;
+      const n = extra.querySelector('#mNueva').value;
+      if (n.length < 6) { alert('La contraseña nueva debe tener al menos 6 caracteres.'); return; }
+      if (n !== extra.querySelector('#mNueva2').value) { alert('Las contraseñas nuevas no coinciden.'); return; }
+      if (await CANDADO.cambiarContrasena(a, n)) { alert('Contraseña cambiada.'); extra.innerHTML = ''; }
+      else alert('La contraseña actual es incorrecta.');
+    }));
+
+  const quitar = cont.querySelector('#btnQuitarCandado');
+  if (quitar) quitar.addEventListener('click', () => miniForm(
+    '<p class="text-muted" style="margin:0;font-size:13px">Los datos quedarán descifrados en el dispositivo y la app dejará de pedir contraseña.</p>' +
+    '<div class="field"><label>Contraseña actual</label><input class="input" type="password" id="mActual" style="min-height:46px"></div>',
+    async () => {
+      const a = extra.querySelector('#mActual').value;
+      if (await CANDADO.desactivar(a)) { alert('Candado quitado; los datos quedaron descifrados.'); render(); }
+      else alert('Contraseña incorrecta.');
+    }));
 }
 
 /* ---------------- enrutador ---------------- */
@@ -686,5 +774,10 @@ for (const [id, hash] of [['navPacientes', '#/'], ['navProtocolos', '#/protocolo
   });
 }
 window.addEventListener('hashchange', render);
-pintarPieLateral();
-render();
+if (typeof CANDADO !== 'undefined' && CANDADO.configurado() && !CANDADO.desbloqueado()) {
+  /* candado activo: nada se pinta ni se descifra hasta dar la contraseña */
+  CANDADO.pantalla(() => { pintarPieLateral(); render(); });
+} else {
+  pintarPieLateral();
+  render();
+}

@@ -46,11 +46,31 @@ const DB = (() => {
     }));
   }
 
+  /* ---- Cifrado transparente (candado.js) ----
+     Con el candado activo, cada registro se guarda cifrado (AES-GCM) dejando
+     en claro SOLO el id y los campos de índice (uuids, sin datos clínicos). */
+  const CAMPOS_CLAROS = {
+    pacientes: ['id'], episodios: ['id', 'pacienteId'],
+    evaluaciones: ['id', 'episodioId'], escalas: ['id', 'episodioId'],
+    config: null                       // la config nunca se cifra
+  };
+
+  function _aDisco(store, obj) {
+    const claros = CAMPOS_CLAROS[store];
+    if (!claros || typeof CANDADO === 'undefined' || !CANDADO.cifrando())
+      return Promise.resolve(obj);
+    return CANDADO.cifrarRegistro(obj, claros);
+  }
+
+  function _deDisco(obj) {
+    if (!obj) return Promise.resolve(null);
+    if (!obj._c) return Promise.resolve(obj);   // registro en claro
+    return CANDADO.descifrarRegistro(obj);
+  }
+
   function todos(store) {
-    return _tx(store, 'readonly', st => {
-      const req = st.getAll();
-      return req;
-    });
+    return _tx(store, 'readonly', st => st.getAll())
+      .then(lista => Promise.all((lista || []).map(_deDisco)));
   }
 
   function porIndice(store, indice, valor) {
@@ -59,7 +79,7 @@ const DB = (() => {
         .objectStore(store).index(indice).getAll(valor);
       req.onsuccess = () => res(req.result);
       req.onerror = () => rej(req.error);
-    }));
+    })).then(lista => Promise.all((lista || []).map(_deDisco)));
   }
 
   function obtener(store, id) {
@@ -67,11 +87,13 @@ const DB = (() => {
       const req = d.transaction(store, 'readonly').objectStore(store).get(id);
       req.onsuccess = () => res(req.result || null);
       req.onerror = () => rej(req.error);
-    }));
+    })).then(_deDisco);
   }
 
-  function guardar(store, obj) {
-    return _tx(store, 'readwrite', st => st.put(obj)).then(() => obj);
+  async function guardar(store, obj) {
+    const escrito = await _aDisco(store, obj);
+    await _tx(store, 'readwrite', st => st.put(escrito));
+    return obj;
   }
 
   function borrar(store, id) {
