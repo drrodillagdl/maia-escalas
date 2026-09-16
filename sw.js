@@ -1,10 +1,10 @@
-/* CORE Scale — service worker: deja la app disponible SIN internet.
+/* MAIA Escalas — service worker: deja la app disponible SIN internet.
    Estrategia: responde desde caché y actualiza en segundo plano
    (stale-while-revalidate). Al publicar cambios, suba la VERSION.            */
 
 /* Al publicar cambios: subir VERSION aquí y el ?v= de index.html a la par. */
-const VERSION = 'corescale-v0.3.0';
-const V = '?v=0.3.0';
+const VERSION = 'maia-escalas-v0.4.0';
+const V = '?v=0.4.0';
 const ARCHIVOS = [
   '.', 'index.html', 'css/style.css' + V,
   'js/candado.js' + V,
@@ -12,7 +12,8 @@ const ARCHIVOS = [
   'js/eval.js' + V, 'js/escala-ui.js' + V, 'js/evolucion.js' + V, 'js/app.js' + V,
   'fonts/archivo-latin.woff2',
   'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png',
-  'icons/icon-512.png', 'icons/icon-32.png'
+  'icons/icon-512.png', 'icons/icon-32.png',
+  'icons/marca/isotipo-favicon-dark.svg', 'icons/marca/isotipo-favicon-light.svg'
 ];
 
 self.addEventListener('install', (e) => {

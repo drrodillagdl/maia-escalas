@@ -1,4 +1,4 @@
-/* CORE Scale — Escalas funcionales con puntuación automática.
+/* MAIA Escalas — Escalas funcionales con puntuación automática.
    ⚠ CLÍNICO: las opciones, puntos y fórmulas de este archivo fueron verificados
    contra las fuentes oficiales (2026-09-01):
      · DASH/QuickDASH → PDFs oficiales de puntuación del Institute for Work & Health

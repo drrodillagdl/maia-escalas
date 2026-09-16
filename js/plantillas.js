@@ -1,4 +1,4 @@
-/* CORE Scale — Plantillas de evaluación postoperatoria.
+/* MAIA Escalas — Plantillas de evaluación postoperatoria.
    Transcritas de las hojas impresas del Dr. Israel Romo (serie "Evaluación",
    carpeta Dinamómetro). Cada sección conserva sus instrucciones completas:
    la app enseña CÓMO hacer cada medición, no solo dónde anotarla.

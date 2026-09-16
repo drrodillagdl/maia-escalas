@@ -1,4 +1,4 @@
-/* CORE Scale — captura y consulta de evaluaciones (las 4 plantillas).
+/* MAIA Escalas — captura y consulta de evaluaciones (las 4 plantillas).
    Asistente por secciones tomado del diseño Modernist: riel lateral en iPad,
    fila de números en iPhone, recuadro "Técnica", contadores −/+, cálculo del
    LSI en vivo y diálogo de confirmación al guardar.                          */
@@ -12,11 +12,11 @@ function _pasoBoton(campo) {
 
 function _claseNum(a) {
   if (a.tipo !== 'lsi') return '';
-  return { bueno: 'ok', medio: 'acento', malo: 'alerta' }[claseLSI(a)] || 'acento';
+  return { bueno: 'ok', medio: 'alerta', malo: 'peligro' }[claseLSI(a)] || '';
 }
 function _tagAuto(a) {
   if (a.tipo !== 'lsi') return 'tag-neutral';
-  return { bueno: 'tag-ok', medio: 'tag-accent', malo: 'tag-accent' }[claseLSI(a)] || 'tag-neutral';
+  return { bueno: 'tag-ok', medio: 'tag-alerta', malo: 'tag-peligro' }[claseLSI(a)] || 'tag-neutral';
 }
 
 function _campoHTML(campo, valor) {
@@ -167,7 +167,7 @@ async function vistaFormEvaluacion(cont, pid, eid, plantillaId, evalId) {
       '<div style="flex:1;min-width:0">' +
       '<div style="font-family:var(--font-heading);font-weight:800;font-size:15px;line-height:1.15">' + plantilla.nombre + '</div>' +
       '<div class="text-muted" style="font-size:11px">' + escaparHTML(paciente.nombre) + ' · ' + metaCap() + '</div></div>' +
-      '<span class="tag tag-accent">' + (si + 1) + ' / ' + secs.length + '</span></div>' +
+      '<span class="tag tag-neutral">' + (si + 1) + ' / ' + secs.length + '</span></div>' +
       '<div class="pasos-movil">' +
       secs.map((sx, i) => {
         const e = est(i);
@@ -191,7 +191,7 @@ async function vistaFormEvaluacion(cont, pid, eid, plantillaId, evalId) {
 
     cont.innerHTML = '<div class="captura">' + rail +
       '<div class="captura-main">' + pasosMovil +
-      '<div class="solo-ancho"><span class="tag tag-accent">Sección ' + (si + 1) + ' de ' + secs.length + '</span></div>' +
+      '<div class="solo-ancho"><span class="tag tag-neutral">Sección ' + (si + 1) + ' de ' + secs.length + '</span></div>' +
       '<h2 style="margin:12px 0 14px;font-size:26px">' + sec.titulo + '</h2>' +
       visitaDatos +
       '<div class="tecnica"><div class="card-kicker" style="margin-bottom:4px">Técnica</div>' +
@@ -310,7 +310,7 @@ async function vistaFormEvaluacion(cont, pid, eid, plantillaId, evalId) {
       const dlg = document.createElement('div');
       dlg.className = 'dialog-backdrop';
       dlg.innerHTML = '<div class="dialog">' +
-        '<div class="card-kicker">CORE Scale · Guardado en este dispositivo</div>' +
+        '<div class="card-kicker">' + DB.APP + ' · Guardado en este dispositivo</div>' +
         '<div class="dialog-title">Evaluación guardada</div>' +
         '<div class="dialog-body">La evaluación de ' + escaparHTML(paciente.nombre) +
         ' quedó registrada como visita del ' + fmtFecha(obj.fecha) +
@@ -396,7 +396,7 @@ async function vistaEvaluacion(cont, pid, eid, evalId) {
     '<h3 style="margin:4px 0 10px">' + plantilla.nombre + '</h3>' +
     '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
     '<span class="tag tag-neutral">' + fmtFecha(ev.fecha) + '</span>' +
-    (semanas !== null && semanas >= 0 ? '<span class="tag tag-accent">Semana ' + semanas + '</span>' : '') +
+    (semanas !== null && semanas >= 0 ? '<span class="tag tag-neutral">Semana ' + semanas + '</span>' : '') +
     (episodio.lado ? '<span class="tag tag-neutral">' + episodio.lado + '</span>' : '') +
     (ev.evaluador ? '<span class="tag tag-neutral">' + escaparHTML(ev.evaluador) + '</span>' : '') +
     '</div>' +
@@ -448,6 +448,6 @@ function resumenEvaluacion(paciente, episodio, ev, plantilla, semanas) {
     if (partes.length) L.push('· ' + s.titulo.toUpperCase() + ' — ' + partes.join(' · '));
   }
   if (ev.notas) L.push('Notas: ' + ev.notas);
-  L.push('(Registrado con CORE Scale)');
+  L.push('(Registrado con ' + DB.APP + ')');
   return L.join('\n');
 }

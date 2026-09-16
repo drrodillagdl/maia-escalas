@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <title>CORE Scale</title>
+  <title>MAIA Escalas</title>
   <meta name="description" content="Evaluación objetiva postoperatoria de ortopedia: goniometría, dinamometría y escalas funcionales.">
 
   <!-- PWA / instalable en iPad y iPhone -->
@@ -11,21 +11,22 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="CORE Scale">
-  <meta name="theme-color" content="#201e1d">
+  <meta name="apple-mobile-web-app-title" content="MAIA Escalas">
+  <meta name="theme-color" content="#17181A">
   <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <!-- 20 px o menos: sólo los tres puntos, sin aristas (MANUAL §3) -->
+  <link rel="icon" type="image/svg+xml" href="icons/marca/isotipo-favicon-dark.svg" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/svg+xml" href="icons/marca/isotipo-favicon-light.svg" media="(prefers-color-scheme: light)">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 
   <!-- El ?v= debe coincidir con VERSION de sw.js: subir ambos en cada publicación -->
-  <link rel="stylesheet" href="css/style.css?v=0.3.0">
+  <link rel="stylesheet" href="css/style.css?v=0.4.0">
 </head>
 <body>
   <div id="app">
 
     <aside id="ladoIzq">
-      <svg viewBox="0 0 32 32" width="44" height="44" style="display:block" aria-label="Logotipo COREscale"><rect x="0" y="0" width="32" height="32" fill="var(--color-text)"></rect><path d="M12 24 H24" stroke="var(--color-bg)" stroke-width="3" stroke-linecap="round" fill="none"></path><path d="M12 24 L20 9.5" stroke="var(--color-bg)" stroke-width="3" stroke-linecap="round" fill="none"></path><circle cx="25" cy="22.4" r="2" fill="var(--color-bg)"></circle><circle cx="25" cy="25.6" r="2" fill="var(--color-bg)"></circle><circle cx="18.7" cy="8.2" r="2" fill="var(--color-bg)"></circle><circle cx="21.5" cy="9.8" r="2" fill="var(--color-bg)"></circle><circle cx="12" cy="24" r="4.2" fill="var(--color-text)" stroke="var(--color-bg)" stroke-width="2.2"></circle><path d="M21 24 A9 9 0 0 0 16.4 16.2" stroke="var(--color-accent)" stroke-width="2.5" fill="none"></path></svg>
-      <div class="marca"><b>CORE</b><span>scale</span></div>
-      <div class="subraya"></div>
+      <div class="logotipo"><svg class="isotipo" viewBox="0 0 100 100" width="40" height="40" role="img" aria-label="MAIA Escalas"><g stroke="var(--color-text)" stroke-width="5.5" fill="none"><line x1="50" y1="26" x2="26" y2="70"></line><line x1="50" y1="26" x2="74" y2="70"></line><line x1="26" y1="70" x2="74" y2="70"></line></g><circle cx="50" cy="26" r="11.5" fill="var(--color-text)"></circle><circle cx="26" cy="70" r="11.5" fill="var(--color-text)"></circle><circle cx="74.5" cy="70.5" r="13.5" fill="var(--color-accent)"></circle></svg><div class="marca"><b>MAIA</b> <span>Escalas</span></div></div>
       <button class="nav-item" id="navPacientes">Pacientes</button>
       <button class="nav-item" id="navProtocolos">Protocolos</button>
       <button class="nav-item" id="navAjustes">Ajustes</button>
@@ -40,11 +41,10 @@
 
     <div id="columna">
       <header id="barraMovil">
-        <svg viewBox="0 0 32 32" width="30" height="30" style="display:block" aria-label="Logotipo COREscale"><rect x="0" y="0" width="32" height="32" fill="var(--color-text)"></rect><path d="M12 24 H24" stroke="var(--color-bg)" stroke-width="3" stroke-linecap="round" fill="none"></path><path d="M12 24 L20 9.5" stroke="var(--color-bg)" stroke-width="3" stroke-linecap="round" fill="none"></path><circle cx="25" cy="22.4" r="2" fill="var(--color-bg)"></circle><circle cx="25" cy="25.6" r="2" fill="var(--color-bg)"></circle><circle cx="18.7" cy="8.2" r="2" fill="var(--color-bg)"></circle><circle cx="21.5" cy="9.8" r="2" fill="var(--color-bg)"></circle><circle cx="12" cy="24" r="4.2" fill="var(--color-text)" stroke="var(--color-bg)" stroke-width="2.2"></circle><path d="M21 24 A9 9 0 0 0 16.4 16.2" stroke="var(--color-accent)" stroke-width="2.5" fill="none"></path></svg>
-        <div class="marca"><b>CORE</b><span>scale</span></div>
+        <div class="logotipo"><svg class="isotipo" viewBox="0 0 100 100" width="40" height="40" role="img" aria-label="MAIA Escalas"><g stroke="var(--color-text)" stroke-width="5.5" fill="none"><line x1="50" y1="26" x2="26" y2="70"></line><line x1="50" y1="26" x2="74" y2="70"></line><line x1="26" y1="70" x2="74" y2="70"></line></g><circle cx="50" cy="26" r="11.5" fill="var(--color-text)"></circle><circle cx="26" cy="70" r="11.5" fill="var(--color-text)"></circle><circle cx="74.5" cy="70.5" r="13.5" fill="var(--color-accent)"></circle></svg><div class="marca"><b>MAIA</b> <span>Escalas</span></div></div>
         <div style="flex:1"></div>
         <span class="punto"></span>
-        <span class="text-muted" style="font-size:11px">COREGDL</span>
+        <span class="text-muted estado-corto" style="font-size:11px">COREGDL</span>
       </header>
 
       <main id="contenido" aria-live="polite"></main>
@@ -58,15 +58,15 @@
 
   </div>
 
-  <script src="js/candado.js?v=0.3.0"></script>
-  <script src="js/db.js?v=0.3.0"></script>
-  <script src="js/plantillas.js?v=0.3.0"></script>
-  <script src="js/escalas.js?v=0.3.0"></script>
-  <script src="js/graficas.js?v=0.3.0"></script>
-  <script src="js/eval.js?v=0.3.0"></script>
-  <script src="js/escala-ui.js?v=0.3.0"></script>
-  <script src="js/evolucion.js?v=0.3.0"></script>
-  <script src="js/app.js?v=0.3.0"></script>
+  <script src="js/candado.js?v=0.4.0"></script>
+  <script src="js/db.js?v=0.4.0"></script>
+  <script src="js/plantillas.js?v=0.4.0"></script>
+  <script src="js/escalas.js?v=0.4.0"></script>
+  <script src="js/graficas.js?v=0.4.0"></script>
+  <script src="js/eval.js?v=0.4.0"></script>
+  <script src="js/escala-ui.js?v=0.4.0"></script>
+  <script src="js/evolucion.js?v=0.4.0"></script>
+  <script src="js/app.js?v=0.4.0"></script>
   <script>
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       navigator.serviceWorker.register('sw.js').catch(() => {});

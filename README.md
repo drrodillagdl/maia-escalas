@@ -1,9 +1,15 @@
-# CORE Scale
+# MAIA Escalas
 
 App para iPad y iPhone de **evaluación objetiva postoperatoria de ortopedia**:
 goniometría, dinamometría y escalas funcionales, con seguimiento por paciente a
 lo largo de sus citas. Pensada para el consultorio del Dr. Israel Romo y para
 conectarse en el futuro con el expediente electrónico **COREGDL**.
+
+Forma parte de la familia **MAIA** (*Medicina Asistida por Inteligencia
+Artificial*), seis apps que comparten isotipo y sistema de color. El nombre se
+escribe siempre `MAIA Escalas`; el manual de identidad vive en
+[`diseno/marca/MANUAL.md`](diseno/marca/MANUAL.md) y manda sobre cualquier
+decisión visual de este repositorio.
 
 Es una **app web instalable (PWA)**: se abre en Safari y con
 *Compartir → Agregar a pantalla de inicio* queda como una app más, a pantalla
@@ -78,11 +84,40 @@ se incluyeron** porque requieren licencia de pago.
 | `js/graficas.js` | Gráficas SVG propias (sin librerías: la app es offline) |
 | `js/app.js` | Navegación, pacientes, episodios, ajustes |
 | `sw.js` + `manifest.webmanifest` | Instalable y sin internet (PWA) |
+| `diseno/marca/MANUAL.md` | Manual de identidad de MAIA Escalas (fuente de verdad) |
+| `icons/marca/*.svg` | Isotipo en sus tres tamaños, claro y oscuro |
+| `icons/icon-*.png` | Ícono de app (el de 1024 es el entregable original) |
+
+## Marca
+
+Tema **oscuro por defecto** (MANUAL §3) y acento **turquesa medición**
+`#0090A9`. Todo el color pasa por tokens en `css/style.css`: no hay hexadecimales
+sueltos en los componentes.
+
+El acento **identifica, no decora**: se reserva para el tercer nodo del isotipo,
+el botón primario, el estado activo, los enlaces y la línea de evolución de las
+gráficas. Los estados clínicos (LSI, tendencias) y las acciones destructivas
+tienen sus propios tokens —`--color-ok`, `--color-alerta`, `--color-peligro`—
+justamente para no teñir de turquesa un dato que está mal.
+
+Regla dura de tamaño del isotipo, que el código respeta:
+
+| Alto | Qué se dibuja | Dónde |
+|---|---|---|
+| ≥ 56 px | nodo con sus barras de puntaje | pantalla de entrada (96 px) |
+| 24–48 px | nodo como punto de color, sin barras | barra lateral y barra del teléfono (40 px) |
+| ≤ 20 px | tres puntos, sin aristas | favicon |
+
+Pendiente del manual: la **tipografía** (§5 la deja provisional para las seis
+apps). Mientras se decide, la interfaz sigue en **Archivo** —vendorizada en
+`fonts/`, porque la app abre sin internet— y sólo el logotipo y el descriptor
+usan las pilas del sistema (Helvetica Neue y monoespaciada), que es lo que el
+manual pide y todo iPad ya trae.
 
 ## Correr en desarrollo
 
 ```bash
-cd core-scale && python3 -m http.server 8791 --bind 127.0.0.1
+python3 -m http.server 8791 --bind 127.0.0.1
 ```
 
 y abrir <http://127.0.0.1:8791>. No hay dependencias ni compilación.
@@ -93,6 +128,14 @@ La PWA necesita servirse por **HTTPS** (el service worker no funciona por HTTP
 en red local). Opción recomendada: **GitHub Pages** — el código no contiene
 datos de pacientes, y cada dispositivo guarda lo suyo localmente. Al publicar
 cambios basta recargar la app para actualizarla (subir `VERSION` en `sw.js`).
+
+## Nombres técnicos heredados
+
+La app se llamó **CORE Scale** hasta la versión 0.3.0. El cambio de marca es
+sólo de superficie: la base local sigue llamándose `core-scale` y la llave del
+candado `cs_candado`, **a propósito**, porque renombrarlas dejaría inaccesibles
+los datos ya capturados en los iPad en uso. Los respaldos JSON viejos
+(`"app": "CORE Scale"`) se siguen importando sin tocarlos.
 
 ## Integración con COREGDL (pendiente)
 

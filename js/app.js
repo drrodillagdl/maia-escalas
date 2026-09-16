@@ -1,10 +1,11 @@
-/* CORE Scale — armazón de la app: navegación (barra lateral en iPad, pestañas
+/* MAIA Escalas — armazón de la app: navegación (barra lateral en iPad, pestañas
    en iPhone), pacientes, perfil con evolución, protocolos y ajustes.
-   Interfaz adaptada del diseño "Modernist" de Claude Design (CORE Scale.dc.html).
+   Interfaz "Modernist" de Claude Design vestida con la identidad MAIA
+   (manual de marca en diseno/marca/MANUAL.md).
    Preparada para conectarse a COREGDL: cada paciente admite un "ID en COREGDL"
    y la exportación produce el JSON de intercambio.                            */
 
-const VERSION_APP = '0.3.0';
+const VERSION_APP = '0.4.0';
 
 /* ---------------- utilidades ---------------- */
 function hoyISO() {
@@ -140,7 +141,7 @@ async function vistaPacientes(cont) {
   });
 
   const tagTendencia = t => t === null ? '' :
-    '<span class="tag ' + (t >= 0 ? 'tag-ok' : 'tag-accent') + '">' +
+    '<span class="tag ' + (t >= 0 ? 'tag-ok' : 'tag-alerta') + '">' +
     (t >= 0 ? '↑ +' : '↓ ') + t + ' % LSI</span>';
 
   const filasTabla = lista => lista.map(x =>
@@ -150,7 +151,7 @@ async function vistaPacientes(cont) {
     (x.p.idCOREGDL ? 'COREGDL · ' + escaparHTML(x.p.idCOREGDL) : 'Sin expediente ligado') + '</div></td>' +
     '<td>' + (edad(x.p.fechaNacimiento) !== null ? edad(x.p.fechaNacimiento) + ' años' : '—') + '</td>' +
     '<td>' + (x.ep ? escaparHTML(dxEpisodio(x.ep)) : '<span class="text-muted">Sin cirugía registrada</span>') + '</td>' +
-    '<td>' + (x.ep ? '<span class="tag tag-accent">' + tagDe(x.ep) + '</span>' : '') + '</td>' +
+    '<td>' + (x.ep ? '<span class="tag tag-neutral">' + tagDe(x.ep) + '</span>' : '') + '</td>' +
     '<td>' + (x.sem !== null && x.sem >= 0 ? 'Sem ' + x.sem : '—') + '</td>' +
     '<td>' + (x.ultima ? fmtFecha(x.ultima) : '—') + '</td>' +
     '<td>' + (tagTendencia(x.tendencia) || '<span class="text-muted">—</span>') + '</td></tr>'
@@ -160,7 +161,7 @@ async function vistaPacientes(cont) {
     '<div class="card card-clic" data-ir="' + hashPerfil(x.p.id, x.ep && x.ep.id) + '" style="gap:6px">' +
     '<div style="display:flex;align-items:center;gap:8px">' +
     '<div style="font-weight:600;font-size:15px;flex:1">' + escaparHTML(x.p.nombre) + '</div>' +
-    (x.ep ? '<span class="tag tag-accent">' + tagDe(x.ep) + '</span>' : '') + '</div>' +
+    (x.ep ? '<span class="tag tag-neutral">' + tagDe(x.ep) + '</span>' : '') + '</div>' +
     '<div class="text-muted" style="font-size:12px">' +
     (x.ep ? escaparHTML(dxEpisodio(x.ep)) : 'Sin cirugía registrada') + '</div>' +
     '<div class="card-meta">' +
@@ -373,7 +374,7 @@ async function vistaPaciente(cont, pid, eidSel) {
     atrasHTML('#/', 'Pacientes') +
     '<div style="display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap">' +
     '<h2 style="margin:0">' + escaparHTML(p.nombre) + '</h2>' +
-    '<span class="tag tag-accent">' + tagDe(ep) + '</span>' +
+    '<span class="tag tag-neutral">' + tagDe(ep) + '</span>' +
     '<div style="flex:1"></div>' +
     '<button class="btn btn-secondary solo-ancho" id="btnExportarP">Exportar a COREGDL</button>' +
     '<button class="btn btn-primary solo-ancho" data-ir="#/nueva/' + pid + '/' + ep.id + '">Nueva evaluación</button>' +
@@ -398,7 +399,7 @@ async function vistaPaciente(cont, pid, eidSel) {
 
   instalarIr(cont);
   const exportar = async () => {
-    const paquete = { app: 'CORE Scale', formato: 1, exportado: new Date().toISOString(),
+    const paquete = { app: DB.APP, formato: 1, exportado: new Date().toISOString(),
       paciente: p, episodios: [] };
     for (const e of episodios) {
       paquete.episodios.push({
@@ -632,7 +633,9 @@ async function vistaAjustes(cont) {
     '</div>' +
     '<h5 style="margin:22px 0 10px">Acerca de</h5>' +
     '<div class="card text-muted" style="font-size:13.5px;line-height:1.6">' +
-    '<div><b style="color:var(--color-text)">CORE Scale ' + VERSION_APP + '</b></div>' +
+    '<div><b style="color:var(--color-text)">' + DB.APP + ' ' + VERSION_APP + '</b></div>' +
+    '<div style="font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.12em;' +
+    'text-transform:uppercase;margin:2px 0 8px">Medicina asistida por inteligencia artificial</div>' +
     'Evaluación objetiva postoperatoria: goniometría, dinamometría y escalas funcionales, ' +
     'con seguimiento por paciente. Pensada para consultorios de ortopedia y para conectarse ' +
     'con el expediente COREGDL.<br><br>' +

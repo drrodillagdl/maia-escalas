@@ -1,4 +1,4 @@
-/* CORE Scale — gráficas de evolución en SVG puro (sin librerías: la app es
+/* MAIA Escalas — gráficas de evolución en SVG puro (sin librerías: la app es
    offline). Réplica del estilo del diseño Modernist: tarjeta con kicker,
    último valor grande, línea en acento con puntos, rejilla mínima de 3 líneas.
    La serie contralateral se dibuja punteada en gris; la meta de simetría (90 %)
