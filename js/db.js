@@ -1,11 +1,16 @@
-/* CORE Scale — almacenamiento local (IndexedDB).
+/* MAIA Escalas — almacenamiento local (IndexedDB).
    TODO se guarda en el propio dispositivo; nada sale a internet.
    Almacenes: pacientes, episodios (una cirugía/tratamiento), evaluaciones,
    escalas (resultados de escalas funcionales) y config. */
 
 const DB = (() => {
+  /* Nombre técnico heredado de cuando la app se llamaba CORE Scale. NO se
+     renombra al cambiar de marca: los iPad que ya están en uso guardan todo
+     bajo esta base y renombrarla equivaldría a empezar de cero. */
   const NOMBRE = 'core-scale';
   const VERSION = 1;
+  const APP = 'MAIA Escalas';
+  const APPS_VALIDAS = [APP, 'CORE Scale'];
   let _db = null;
 
   function abrir() {
@@ -121,7 +126,7 @@ const DB = (() => {
       todos('pacientes'), todos('episodios'), todos('evaluaciones'), todos('escalas')
     ]);
     return {
-      app: 'CORE Scale',
+      app: APP,
       formato: 1,
       exportado: new Date().toISOString(),
       pacientes, episodios, evaluaciones, escalas
@@ -129,8 +134,10 @@ const DB = (() => {
   }
 
   async function importarTodo(datos, reemplazar) {
-    if (!datos || datos.app !== 'CORE Scale' || !Array.isArray(datos.pacientes))
-      throw new Error('El archivo no es un respaldo de CORE Scale.');
+    /* Se aceptan los respaldos hechos cuando la app se llamaba CORE Scale:
+       el formato es el mismo, sólo cambió el nombre de la marca. */
+    if (!datos || !APPS_VALIDAS.includes(datos.app) || !Array.isArray(datos.pacientes))
+      throw new Error('El archivo no es un respaldo de ' + APP + '.');
     for (const store of ['pacientes', 'episodios', 'evaluaciones', 'escalas']) {
       const lista = datos[store] || [];
       for (const obj of lista) {
@@ -149,6 +156,6 @@ const DB = (() => {
     navigator.storage.persist().catch(() => {});
   }
 
-  return { abrir, todos, porIndice, obtener, guardar, borrar, uuid, conf,
+  return { APP, abrir, todos, porIndice, obtener, guardar, borrar, uuid, conf,
            exportarTodo, importarTodo };
 })();

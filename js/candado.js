@@ -1,4 +1,4 @@
-/* CORE Scale — candado con contraseña y CIFRADO real de los datos clínicos.
+/* MAIA Escalas — candado con contraseña y CIFRADO real de los datos clínicos.
 
    Cómo funciona (todo en el dispositivo, sin servidor):
    · Al activar el candado se genera una LLAVE MAESTRA aleatoria (AES-GCM 256)
@@ -16,6 +16,11 @@
 
 const CANDADO = (() => {
   const LS = 'cs_candado';        // material en localStorage (no secreto)
+  /* Nombre técnico heredado de cuando la app se llamaba CORE Scale. NO se
+     renombra al cambiar de marca: la base y la llave envuelta viven bajo
+     estas claves en los iPad que ya están en uso, y cambiarlas dejaría los
+     datos cifrados inaccesibles. */
+  const NOMBRE_BD = 'core-scale';
   const ITER = 310000;
   let _llave = null;              // CryptoKey maestra, solo en memoria
 
@@ -137,12 +142,16 @@ const CANDADO = (() => {
       'display:grid;place-items:center;padding:20px';
     div.innerHTML =
       '<form id="formCandado" style="width:min(360px,100%);text-align:center">' +
-      '<svg viewBox="0 0 32 32" width="52" height="52" style="display:block;margin:0 auto" aria-label="CORE Scale"><rect x="0" y="0" width="32" height="32" fill="var(--color-text)"></rect><path d="M12 24 H24" stroke="var(--color-bg)" stroke-width="3" stroke-linecap="round" fill="none"></path><path d="M12 24 L20 9.5" stroke="var(--color-bg)" stroke-width="3" stroke-linecap="round" fill="none"></path><circle cx="25" cy="22.4" r="2" fill="var(--color-bg)"></circle><circle cx="25" cy="25.6" r="2" fill="var(--color-bg)"></circle><circle cx="18.7" cy="8.2" r="2" fill="var(--color-bg)"></circle><circle cx="21.5" cy="9.8" r="2" fill="var(--color-bg)"></circle><circle cx="12" cy="24" r="4.2" fill="var(--color-text)" stroke="var(--color-bg)" stroke-width="2.2"></circle><path d="M21 24 A9 9 0 0 0 16.4 16.2" stroke="var(--color-accent)" stroke-width="2.5" fill="none"></path></svg>' +
-      '<div style="font-family:var(--font-heading);font-size:26px;letter-spacing:-0.02em;margin:12px 0 2px"><b style="font-weight:800">CORE</b><span style="font-weight:400">scale</span></div>' +
-      '<div style="width:30px;height:4px;background:var(--color-accent);margin:10px auto 22px"></div>' +
+      /* logotipo apilado del MANUAL §3: a 96 px el isotipo sí lleva su
+         símbolo (las barras de puntaje), y el nombre nunca va solo. */
+      '<div class="logotipo-apilado" style="margin-bottom:22px">' +
+      '<svg class="isotipo" viewBox="0 0 100 100" width="96" height="96" role="img" aria-label="MAIA Escalas"><g stroke="var(--color-text)" stroke-width="5.5" fill="none"><line x1="50" y1="26" x2="26" y2="70"></line><line x1="50" y1="26" x2="74" y2="70"></line><line x1="26" y1="70" x2="74" y2="70"></line></g><circle cx="50" cy="26" r="11.5" fill="var(--color-text)"></circle><circle cx="26" cy="70" r="11.5" fill="var(--color-text)"></circle><circle cx="74.5" cy="70.5" r="14.5" fill="var(--color-accent)"></circle><g transform="translate(65.3 61.3) scale(0.7667)" fill="var(--color-bg)"><path d="M2.5 14.5h4.6v8H2.5zM9.7 8.5h4.6v14H9.7zM16.9 1.5h4.6v21h-4.6z"></path></g></svg>' +
+      '<div class="marca"><b>MAIA</b><span>Escalas</span></div>' +
+      '<div class="descriptor">Medicina asistida por<br>inteligencia artificial</div>' +
+      '</div>' +
       '<div class="text-muted" style="font-size:14px;margin-bottom:14px">' + escaparHTML(usuario()) + '</div>' +
       '<input class="input" type="password" id="candadoPass" placeholder="Contraseña" autocomplete="current-password" style="min-height:50px;font-size:17px;text-align:center">' +
-      '<div id="candadoError" style="color:var(--color-accent-700);font-size:13px;min-height:20px;margin-top:8px"></div>' +
+      '<div id="candadoError" style="color:var(--color-peligro);font-size:13px;min-height:20px;margin-top:8px"></div>' +
       '<button class="btn btn-primary btn-block btn-grande" type="submit">Entrar</button>' +
       '<button class="btn btn-ghost btn-block" type="button" id="candadoOlvide" style="margin-top:14px;font-size:12.5px">Olvidé mi contraseña</button>' +
       '</form>';
@@ -165,7 +174,7 @@ const CANDADO = (() => {
         'La única opción es borrar todo y restaurar después desde un respaldo JSON.\n\n¿Borrar TODOS los datos de este dispositivo?')) return;
       if (!confirm('Última confirmación: se borrarán todos los pacientes y evaluaciones de ESTE dispositivo. ¿Continuar?')) return;
       localStorage.removeItem(LS);
-      indexedDB.deleteDatabase('core-scale');
+      indexedDB.deleteDatabase(NOMBRE_BD);
       location.reload();
     });
   }

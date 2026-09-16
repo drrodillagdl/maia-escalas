@@ -1,7 +1,11 @@
-/* CORE Scale — estilo "Modernist" adaptado del diseño de Claude Design
-   (CORE Scale.dc.html + _ds/modernist). Tokens copiados fielmente del sistema;
-   esquinas rectas, divisores de 2px, tipografía Archivo, acento #ec3013.
-   La fuente Archivo va VENDORIZADA (fonts/) porque la app funciona sin internet. */
+/* MAIA Escalas — estilo "Modernist" (adaptado del diseño de Claude Design)
+   vestido con la identidad MAIA: tema oscuro, acento turquesa medición.
+   Fuente de verdad de la marca: diseno/marca/MANUAL.md — los valores de §4 se
+   copian aquí tal cual y NO se inventan tonos nuevos: si hace falta una
+   variante, se deriva del turquesa moviendo SOLO la luminosidad (mismo matiz
+   215), por eso la rampa de acento va en oklch.
+   Esquinas rectas, divisores de 2px, tipografía Archivo VENDORIZADA (fonts/)
+   porque la app funciona sin internet. */
 
 @font-face {
   font-family: 'Archivo';
@@ -12,45 +16,61 @@
 }
 
 :root {
-  --color-bg: #f3f2f2;
-  --color-surface: #eae9e9;
-  --color-text: #201e1d;
-  --color-accent: #ec3013;
-  --color-accent-2: #e15b47;
-  --color-divider: color-mix(in srgb, #201e1d 40%, transparent);
+  /* ---- marca (MANUAL §4) ---- */
+  --color-bg: #17181A;             /* Tinta */
+  --color-surface: #22252B;        /* mismo fondo que el ícono de la app */
+  --color-text: #FFFEFB;           /* Tinta invertida */
+  --color-accent: #0090A9;         /* turquesa medición · tema oscuro */
+  --color-accent-2: oklch(0.68 0.10 215);
+  --color-divider: color-mix(in srgb, #FFFEFB 24%, transparent);
 
-  --color-neutral-100: #f8f4f4;
-  --color-neutral-200: #eae7e7;
-  --color-neutral-300: #d7d3d3;
-  --color-neutral-400: #bab6b6;
-  --color-neutral-500: #9b9797;
-  --color-neutral-600: #7d7979;
-  --color-neutral-700: #605d5d;
-  --color-neutral-800: #444141;
-  --color-neutral-900: #2d2b2b;
+  /* rampa neutra: en tema oscuro va al revés que en claro — 100 es lo más
+     cercano al fondo y 900 lo más cercano al texto. Las reglas que usan
+     "fondo 100 / texto 800" siguen leyéndose bien sin tocarlas. */
+  --color-neutral-100: color-mix(in srgb, var(--color-text)  7%, var(--color-bg));
+  --color-neutral-200: color-mix(in srgb, var(--color-text) 11%, var(--color-bg));
+  --color-neutral-300: color-mix(in srgb, var(--color-text) 17%, var(--color-bg));
+  --color-neutral-400: color-mix(in srgb, var(--color-text) 25%, var(--color-bg));
+  --color-neutral-500: color-mix(in srgb, var(--color-text) 38%, var(--color-bg));
+  --color-neutral-600: color-mix(in srgb, var(--color-text) 52%, var(--color-bg));
+  --color-neutral-700: color-mix(in srgb, var(--color-text) 66%, var(--color-bg));
+  --color-neutral-800: color-mix(in srgb, var(--color-text) 80%, var(--color-bg));
+  --color-neutral-900: color-mix(in srgb, var(--color-text) 92%, var(--color-bg));
 
-  --color-accent-100: #fff2ef;
-  --color-accent-300: #ffc4b8;
-  --color-accent-600: #dd2b0f;
-  --color-accent-700: #ae1800;
-  --color-accent-800: #7c1405;
+  /* acento: mismo matiz 215, sólo cambia la luminosidad (MANUAL §4).
+     100 = fondo teñido para chips · 700/800 = turquesa legible sobre oscuro. */
+  --color-accent-100: oklch(0.30 0.045 215);
+  --color-accent-300: oklch(0.44 0.080 215);
+  --color-accent-600: oklch(0.66 0.110 215);
+  --color-accent-700: oklch(0.74 0.100 215);
+  --color-accent-800: oklch(0.86 0.060 215);
 
-  /* semáforo clínico del LSI (añadido: el sistema es rojo, el verde se reserva
-     exclusivamente para "meta de simetría alcanzada") */
-  --color-ok: #2c6e3b;
-  --color-ok-100: #e9f2ea;
+  /* semáforo clínico. NO es decoración ni marca: son estados del dato (LSI,
+     tendencia, acciones destructivas). El turquesa jamás se usa para esto,
+     porque en MAIA el acento identifica, no califica (MANUAL §4). */
+  --color-ok: oklch(0.76 0.14 150);
+  --color-ok-100: oklch(0.30 0.055 150);
+  --color-alerta: oklch(0.80 0.13 75);
+  --color-alerta-100: oklch(0.32 0.055 75);
+  --color-peligro: oklch(0.72 0.17 25);
+  --color-peligro-100: oklch(0.30 0.085 25);
 
   --font-heading: 'Archivo', system-ui, sans-serif;
   --font-body: 'Archivo', system-ui, sans-serif;
+  /* logotipo y descriptor: MANUAL §5 pide Helvetica Neue e IBM Plex Mono. Van
+     por pila del sistema (iPad/iPhone/Mac ya las traen) para no cargar otro
+     archivo de fuente en una app que debe abrir sin internet. */
+  --font-marca: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
 
   --space-1: 4px; --space-2: 8px; --space-3: 12px;
   --space-4: 16px; --space-6: 24px; --space-8: 32px;
 
-  --shadow-sm: 0 1px 2px color-mix(in srgb, #2d2b2b 14%, transparent);
-  --shadow-md: 0 3px 10px color-mix(in srgb, #2d2b2b 16%, transparent);
-  --shadow-lg: 0 12px 32px color-mix(in srgb, #2d2b2b 22%, transparent);
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #000 40%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #000 46%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #000 55%, transparent);
 
-  color-scheme: light;             /* el diseño se compromete con un solo aspecto */
+  color-scheme: dark;              /* tema por defecto de MAIA Escalas (MANUAL §3) */
 }
 
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -67,10 +87,10 @@ h1, h2, h3, h4, h5, h6 {
 h1 { font-size: 42px; } h2 { font-size: 32px; } h3 { font-size: 25px; }
 h4 { font-size: 20px; } h5 { font-size: 16px; }
 p { margin: 0 0 var(--space-3); }
-a { color: var(--color-accent); text-underline-offset: 3px; }
+a { color: var(--color-accent-700); text-underline-offset: 3px; }
 .text-muted { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
 :focus { outline: none; }
-:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--color-accent-700); outline-offset: 2px; }
 ::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
 
 .hr { height: 2px; border: 0; margin: var(--space-4) 0; background: var(--color-divider); }
@@ -92,10 +112,10 @@ a { color: var(--color-accent); text-underline-offset: 3px; }
 .btn-secondary { border-color: var(--color-divider); }
 .btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
 .btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
-.btn-ghost { color: var(--color-accent); padding-inline: var(--space-1); }
+.btn-ghost { color: var(--color-accent-700); padding-inline: var(--space-1); }
 .btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
-.btn-peligro { border-color: var(--color-accent-300); color: var(--color-accent-700); }
-.btn-peligro:hover { background: var(--color-accent-100); }
+.btn-peligro { border-color: color-mix(in srgb, var(--color-peligro) 55%, transparent); color: var(--color-peligro); }
+.btn-peligro:hover { background: var(--color-peligro-100); }
 .btn-icon { width: 36px; height: 36px; padding: 0; }
 .btn-block { width: 100%; margin-top: var(--space-2); }
 .btn-grande { min-height: 48px; }
@@ -155,7 +175,8 @@ select.input { min-height: 48px; font-size: 16px; }
 }
 .card-clic { cursor: pointer; }
 .card-clic:hover { outline: 1px solid var(--color-divider); }
-.card-kicker { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); }
+.card-kicker { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 60%, transparent); }
 .card-title { font-family: var(--font-heading); font-weight: 800; font-size: 17px; line-height: 1.2; }
 .card-body { margin: 0; font-size: 13px; opacity: 0.8; flex: 1; }
 .card-meta {
@@ -171,6 +192,8 @@ select.input { min-height: 48px; font-size: 16px; }
 .tag-accent { background: var(--color-accent-100); color: var(--color-accent-800); }
 .tag-neutral { background: var(--color-neutral-100); color: var(--color-neutral-800); }
 .tag-ok { background: var(--color-ok-100); color: var(--color-ok); }
+.tag-alerta { background: var(--color-alerta-100); color: var(--color-alerta); }
+.tag-peligro { background: var(--color-peligro-100); color: var(--color-peligro); }
 
 /* ---------- tablas ---------- */
 .table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -191,7 +214,7 @@ select.input { min-height: 48px; font-size: 16px; }
 .dialog-backdrop {
   position: fixed; inset: 0; display: grid; place-items: center; z-index: 50;
   padding: var(--space-4);
-  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+  background: color-mix(in srgb, #000 62%, transparent);
 }
 .dialog {
   width: min(440px, 100%); display: flex; flex-direction: column; gap: var(--space-3);
@@ -202,16 +225,31 @@ select.input { min-height: 48px; font-size: 16px; }
 .dialog-body { font-size: 14px; opacity: 0.85; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
 
+/* ---------- logotipo horizontal (MANUAL §3) ----------
+   Isotipo a 40 px (archivo -small-: el nodo es punto de color, sin barras,
+   porque por debajo de 56 px el símbolo se vuelve mancha), separación al texto
+   0.45 × 40 = 18 px, texto 0.46 × 40 ≈ 18.5 px, letter-spacing .16em,
+   MAIA en regular y Escalas en medium. La zona de respeto —el radio de un
+   nodo— la da el padding de la barra: nada entra ahí. */
+.logotipo { display: flex; align-items: center; gap: 18px; }
+.logotipo .isotipo { display: block; flex: none; }
+.logotipo .marca {
+  font-family: var(--font-marca); font-size: 18.5px; line-height: 1;
+  letter-spacing: 0.16em; white-space: nowrap; color: var(--color-text);
+}
+.logotipo .marca b { font-weight: 400; }      /* MAIA */
+.logotipo .marca span { font-weight: 500; }   /* Escalas */
+
 /* ═══════════ armazón de la app ═══════════ */
 #app { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
 
 #ladoIzq {
-  width: 212px; flex: none; display: flex; flex-direction: column;
+  /* 272 px = 40 (isotipo) + 18 (separación) + 152 (texto) + 36 (padding) + holgura.
+     El logotipo horizontal del MANUAL §3 no se achica: la barra se ensancha. */
+  width: 272px; flex: none; display: flex; flex-direction: column;
   border-right: 2px solid var(--color-divider); padding: 24px 18px;
 }
-#ladoIzq .marca { font-family: var(--font-heading); font-size: 24px; line-height: 1; letter-spacing: -0.02em; margin-top: 12px; }
-#ladoIzq .marca b { font-weight: 800; } #ladoIzq .marca span { font-weight: 400; }
-#ladoIzq .subraya { width: 30px; height: 4px; background: var(--color-accent); margin: 12px 0 26px; }
+#ladoIzq .logotipo { margin-bottom: 26px; }
 .nav-item {
   display: flex; justify-content: flex-start; width: 100%;
   padding: 10px 12px; margin-bottom: 2px;
@@ -233,8 +271,6 @@ select.input { min-height: 48px; font-size: 16px; }
   padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px;
   border-bottom: 2px solid var(--color-divider);
 }
-#barraMovil .marca { font-family: var(--font-heading); font-size: 17px; letter-spacing: -0.02em; }
-#barraMovil .marca b { font-weight: 800; } #barraMovil .marca span { font-weight: 400; }
 #barraMovil .punto { width: 7px; height: 7px; background: var(--color-accent); }
 
 #contenido { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; }
@@ -295,7 +331,8 @@ select.input { min-height: 48px; font-size: 16px; }
 .cinta .dato .num { font-family: var(--font-heading); font-weight: 800; font-size: 26px; line-height: 1.15; }
 .cinta .num.acento { color: var(--color-accent-700); }
 .cinta .num.ok { color: var(--color-ok); }
-.cinta .num.alerta { color: var(--color-accent-600); }
+.cinta .num.alerta { color: var(--color-alerta); }
+.cinta .num.peligro { color: var(--color-peligro); }
 .cinta .nota { font-size: 11px; color: color-mix(in srgb, var(--color-text) 50%, transparent); align-self: flex-end; max-width: 220px; }
 
 .pie-captura {
@@ -338,7 +375,7 @@ select.input { min-height: 48px; font-size: 16px; }
   padding: 46px 20px; font-size: 15px; line-height: 1.5; }
 .vacio .icono { font-size: 34px; margin-bottom: 8px; }
 .oculto { display: none !important; }
-.aviso { background: var(--color-surface); border-left: 3px solid var(--color-accent);
+.aviso { background: var(--color-surface); border-left: 3px solid var(--color-divider);
   padding: 12px 14px; font-size: 13px; line-height: 1.5; margin: 12px 0; }
 .lista-tarjetas { display: flex; flex-direction: column; gap: 10px; }
 .dos-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
@@ -375,4 +412,34 @@ input[type=range] { width: 100%; accent-color: var(--color-accent); }
   .stepper input { height: 52px; font-size: 22px; }
   .table { font-size: 13px; }
   .pie-captura { position: sticky; bottom: 0; background: var(--color-bg); }
+}
+
+/* ═══════════ teléfonos muy angostos ═══════════ */
+@media (max-width: 380px) {
+  /* el logotipo no se achica por debajo de los 40 px de isotipo que pide el
+     MANUAL §6: lo que cede es el indicador de estado, no la marca */
+  #barraMovil .estado-corto { display: none; }
+}
+
+/* ---------- logotipo apilado (MANUAL §3 y §6.3) ----------
+   Pantalla de entrada: isotipo a 96 px —a ese tamaño SÍ lleva su símbolo, las
+   barras de puntaje—, MAIA a 40 px con letter-spacing .22em, Escalas debajo, y
+   el descriptor en monoespaciada, mayúsculas, dos renglones.
+   El text-indent compensa el espacio que el letter-spacing deja colgando a la
+   derecha, para que el bloque quede ópticamente centrado. */
+.logotipo-apilado { text-align: center; }
+.logotipo-apilado .isotipo { margin: 0 auto 18px; }
+.logotipo-apilado .marca { font-family: var(--font-marca); line-height: 1; color: var(--color-text); }
+.logotipo-apilado .marca b {
+  display: block; font-size: 40px; font-weight: 400;
+  letter-spacing: 0.22em; text-indent: 0.22em;
+}
+.logotipo-apilado .marca span {
+  display: block; margin-top: 9px; font-size: 20px; font-weight: 500;
+  letter-spacing: 0.22em; text-indent: 0.22em;
+}
+.logotipo-apilado .descriptor {
+  margin-top: 18px; font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: 0.14em; line-height: 1.75; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
 }

@@ -1,4 +1,4 @@
-/* CORE Scale — aplicación guiada de escalas funcionales, con el estilo
+/* MAIA Escalas — aplicación guiada de escalas funcionales, con el estilo
    Modernist del diseño: introducción con kicker, una pregunta a la vez con
    barra de progreso, opciones planas y resultado con número grande.          */
 

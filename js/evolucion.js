@@ -1,4 +1,4 @@
-/* CORE Scale — evolución del paciente entre visitas.
+/* MAIA Escalas — evolución del paciente entre visitas.
    Cada tarjeta grafica UNA métrica (estilo del diseño Modernist): línea en
    acento, contralateral punteada en gris y, en los LSI, la meta de 90 %.
    También arma las 3 tarjetas de resumen del perfil (ROM · LSI · escala).    */
